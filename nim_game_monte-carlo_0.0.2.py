@@ -85,7 +85,7 @@ def random_moves(number, turn=False):
 		return turn
 	else:
 		
-		return random_moves((number - random.randint(0,number - 1)), (not turn))
+		return random_moves((number - random.choice([1,2,3])), (not turn))
 		
 
 def game(state):
