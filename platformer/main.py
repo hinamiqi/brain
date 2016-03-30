@@ -1,113 +1,70 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
 import pyglet
-from pyglet.window import key
-from pyglet import clock
-from pyglet.gl import *
+from Actors import *
 
-class Actor(object):
-    def __init__(self, color, start_x, start_y, width, height):
-        self.color = color
-        self.x = start_x
-        self.y = start_y
-        self.width = width
-        self.height = height
-        self.speed = 50
-        self.vel = 0
-        self.msg = ""
+backgroundColor = [176, 224, 230, 255]
+playerColor = [107, 142, 35]
+blockColor = [184, 134, 11]
+ 
+class Window(pyglet.window.Window):
+ 
+	def __init__(self):
+		super().__init__(512, 480)
+		# pyglet.gl.glColor3f(*rgb_to_pyglet(backgroundColor))
+		pyglet.gl.glClearColor(*rgb_to_pyglet(backgroundColor))
+		pyglet.clock.schedule_interval(self.update, 1/60)
+		self.key_holder = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
+		self.player = Player(rgb_to_pyglet(playerColor), 100, 100, 20, 60)
+		self.block = Actor(rgb_to_pyglet(blockColor), 200, 200, 100, 100)
+		
+ 
+	def on_draw(self):
+		self.clear()
+		self.player.draw()
+		self.block.draw()
+ 
+	def update(self, dt):
+		self.player.delta_y = 0
+		self.player.delta_x = 0
+		self.player.CollisionCheck(self.block)
+		if self.key_holder['Up']:
+			if self.player.collide['Up'] != True:
+				self.player.delta_y = 10
+		elif self.key_holder['Down']:
+			self.player.delta_y = -10
+		elif self.key_holder['Left']:
+			self.player.delta_x = -10
+		elif self.key_holder['Right']:
+			self.player.delta_x = 10
+		self.player.Moving()
 
-    def vert(self):
-        verts = [self.x, self.y,
-                 self.x + self.width, self.y,
-                 self.x + self.width, self.y + self.height,
-                 self.x, self.y + self.height]
-        return verts
+	def on_key_press(self, key, modifiers):
+		if key == pyglet.window.key.UP:
+			self.key_holder['Up'] = True
+		elif key == pyglet.window.key.DOWN:
+			self.key_holder['Down'] = True
+		elif key == pyglet.window.key.RIGHT:
+			self.key_holder['Right'] = True
+		elif key == pyglet.window.key.LEFT:
+			self.key_holder['Left'] = True
 
-    def draw(self):
-#        r, g, b = self.rgb_to_pyglet(self.color)
-        glColor3f(*self.color)
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, \
-                        ('v2i', self.vert()))
-
-    def CollisionCheck(self, block):
-        if self.x + self.width == block.x and \
-            self.y + self.height > block.y and \
-            self.y < block.y + block.height:
-            self.msg = "Right!"
-            return True
-
-        elif self.x == block.x + block.width and \
-            self.y + self.height > block.y and \
-            self.y < block.y + block.height:
-            self.msg = "Left!"
-            return True
-
-        elif self.y + self.height == block.y and \
-            self.x + self.width > block.x and \
-            self.x < block.x + block.width:
-            self.msg = "Top!"
-            return True
-
-        elif self.y == block.y + block.height and \
-            self.x + self.width > block.x and \
-            self.x < block.x + block.width:
-            self.msg = "Bot!"
-            return True
-        else:
-            self.msg = ""
-
-
-    def update(self):
-        pass
+	def on_key_release(self, key, modifiers):
+		if key == pyglet.window.key.UP:
+			self.key_holder['Up'] = False
+		elif key == pyglet.window.key.DOWN:
+			self.key_holder['Down'] = False
+		elif key == pyglet.window.key.RIGHT:
+			self.key_holder['Right'] = False
+		elif key == pyglet.window.key.LEFT:
+			self.key_holder['Left'] = False
 
 
 def rgb_to_pyglet(list):
-    result = []
-    for i in list:
-        result.append(i/255)
-    return result[0], result[1], result[2]
-
-class App(pyglet.window.Window):
-
-    def __init__(self, color):
-        pyglet.window.Window.__init__(self, 512, 480)
-        self.color = color
-        
-        clock.set_fps_limit(60)
-        
-    def on_draw(self):
-        glClearColor(*self.color, 1)
-        
-        self.clear()
-        
-    def mainLoop(self):
-        pyglet.app.run()
-            
-            #self.draw()
+	result = []
+	for i in list:
+		result.append(i/255)
+	return result
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+	window = Window()
+	pyglet.app.run()
