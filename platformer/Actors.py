@@ -26,11 +26,12 @@ class Actor(object):
                         ('v2i', self.vert()))
 
 class Player(Actor):
-    def __init__(self, color, start_x, start_y, width, height):
+    def __init__(self, world, color, start_x, start_y, width, height):
         super().__init__(color, start_x, start_y, width, height)
+        self.world = world
         self.delta_x = 0
         self.delta_y = 0
-        self.max_speed = 10
+        self.max_speed = 8
         self.up_vel = 0
         self.down_vel = 0
         self.left_vel = 0
@@ -64,17 +65,27 @@ class Player(Actor):
         else:
             self.collide = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
 
+
 #    def Moving(self):
 #        
 #        if self.delta_x != 0:
 #            self.x = self.x + self.delta_x
 #        if self.delta_y != 0:
 #            self.y = self.y + self.delta_y
-
+    
     def move_up(self):
+
         if self.collide['Up'] == False:
             self.y += self.up_vel
-        
+            
+        # res = self.world.Interaction(self)
+        # if res:
+            # self.y = res - self.height
+        # else:
+            # self.y += self.up_vel
+
+
+            
     def move_down(self):
         if self.collide['Down'] == False:
             self.y -= self.down_vel

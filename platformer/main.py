@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
 import pyglet
 from Actors import *
+from Physics import World
 
 backgroundColor = [176, 224, 230, 255]
 playerColor = [107, 142, 35]
@@ -13,13 +17,13 @@ class Window(pyglet.window.Window):
         pyglet.gl.glClearColor(*rgb_to_pyglet(backgroundColor))
         pyglet.clock.schedule_interval(self.update, 1/60)
         self.key_holder = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
-        self.player = Player(rgb_to_pyglet(playerColor), 100, 100, 20, 60)
+        self.physics = World()
+        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 100, 20, 60)
         self.block = Actor(rgb_to_pyglet(blockColor), 200, 200, 100, 100)
+        self.physics.AddObject(self.block)
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=440,
                                            anchor_x='left', anchor_y='bottom')
-
-
 
     def on_draw(self):
         self.clear()
@@ -29,8 +33,12 @@ class Window(pyglet.window.Window):
 
     def update(self, dt):
 
-        self.player.CollisionCheck(self.block)
-
+        #self.player.CollisionCheck(self.block)
+        
+        # if self.physics.CollisionCheck(self.player, self.block):
+            # self.label.text = 'Yay!'
+        # else:
+            # self.label.text = ''
         #move up:
         if self.key_holder['Up']:
             if self.player.up_vel < self.player.max_speed:
