@@ -30,7 +30,8 @@ class Window(pyglet.window.Window):
                                            anchor_x='left', anchor_y='bottom')
         pyglet.clock.schedule_interval(self.update, 1/60)
 
-    def on_draw(self):
+  
+    def draw_all(self):
         self.clear()
         self.player.draw()
         self.block.draw()
@@ -52,10 +53,11 @@ class Window(pyglet.window.Window):
             # self.label.text = ''
             # self.player.Moving()
         #self.player.down_vel += self.physics.Gravitation(self.player.down_vel)
-        self.player.move_up(dt)
+       
         self.player.move_down(dt)
         self.player.move_right(dt)
         self.player.move_left(dt)
+        self.player.move_up(dt)
         
         
         #move up:
@@ -110,6 +112,7 @@ class Window(pyglet.window.Window):
                 self.player.left_vel -= 0.1 * self.player.max_speed
             else:
                 self.player.left_vel = 0
+        self.draw_all()
         
         
         
@@ -125,8 +128,13 @@ class Window(pyglet.window.Window):
             self.key_holder['Right'] = True
         elif key == pyglet.window.key.LEFT:
             self.key_holder['Left'] = True
+        elif key == pyglet.window.key.SPACE:
+            if not self.player.jumping:
+                self.player.up_vel = 20
+                self.player.jumping = True
         elif key == pyglet.window.key.ESCAPE:
             pyglet.app.exit()
+         
 
     def on_key_release(self, key, modifiers):
         if key == pyglet.window.key.UP:
