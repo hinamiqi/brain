@@ -15,27 +15,23 @@ class Window(pyglet.window.Window):
         super().__init__(512, 480)
         # pyglet.gl.glColor3f(*rgb_to_pyglet(backgroundColor))
         pyglet.gl.glClearColor(*rgb_to_pyglet(backgroundColor))
-
+        pyglet.clock.schedule_interval(self.update, 1/60)
         self.key_holder = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
         self.physics = World()
-        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 200, 20, 60)
+        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 100, 20, 60)
         self.block = Actor(rgb_to_pyglet(blockColor), 200, 200, 100, 100)
         self.block1 = Actor(rgb_to_pyglet(blockColor), 0, 50, 300, 50)
-        self.block2 = Actor(rgb_to_pyglet(blockColor), 300, 50, 100, 100)
         self.physics.AddObject(self.block)
         self.physics.AddObject(self.block1)
-        self.physics.AddObject(self.block2)
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=440,
                                            anchor_x='left', anchor_y='bottom')
-        pyglet.clock.schedule_interval(self.update, 1/60)
 
     def on_draw(self):
         self.clear()
         self.player.draw()
         self.block.draw()
         self.block1.draw()
-        self.block2.draw()
         self.label.draw()
 
     def update(self, dt):
@@ -46,16 +42,12 @@ class Window(pyglet.window.Window):
             # self.label.text = 'Yay!'
         # else:
             # self.label.text = ''
-        # if self.physics.CollisionCheck(self.player):
-            # self.label.text = 'Collision!'
-        # else:
-            # self.label.text = ''
+        if self.physics.CollisionCheck(self.player):
+            self.label.text = 'Collision!'
+        else:
+            self.label.text = ''
             # self.player.Moving()
-        self.player.down_vel += self.physics.Gravitation(self.player.down_vel)
-        self.player.move_up(dt)
-        self.player.move_down(dt)
-        self.player.move_right(dt)
-        self.player.move_left(dt)
+
         
         
         #move up:
@@ -70,7 +62,7 @@ class Window(pyglet.window.Window):
                 self.player.up_vel -= 0.1 * self.player.max_speed
             else:
                 self.player.up_vel = 0
-        
+        self.player.move_up(dt)
 
         #move down:
         if self.key_holder['Down']:
@@ -80,10 +72,10 @@ class Window(pyglet.window.Window):
                 self.player.down_vel = self.player.max_speed
         else:
             if self.player.down_vel > 0:
-                self.player.down_vel -= 0.1 * self.player.max_speed 
+                self.player.down_vel -= 0.1 * self.player.max_speed
             else:
                 self.player.down_vel = 0
-        
+        self.player.move_down(dt)
 
         #move right:
         if self.key_holder['Right']:
@@ -96,7 +88,7 @@ class Window(pyglet.window.Window):
                 self.player.right_vel -= 0.1 * self.player.max_speed
             else:
                 self.player.right_vel = 0
-        
+        self.player.move_right(dt)
 
         #move left:
         if self.key_holder['Left']:
@@ -109,9 +101,7 @@ class Window(pyglet.window.Window):
                 self.player.left_vel -= 0.1 * self.player.max_speed
             else:
                 self.player.left_vel = 0
-        
-        
-        
+        self.player.move_left(dt)
         
 
 

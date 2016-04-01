@@ -82,30 +82,26 @@ class Player(Actor):
         # if res:
             # self.up_vel = res
         self.y += self.up_vel 
-        block = self.world.CollisionCheck(self)
-        if block:
-            self.y -= (self.y + self.height) - block.y
+        if self.world.CollisionCheck(self):
+            self.y -= (self.y + self.height) - self.world.block.y
 
     def move_down(self, dt):
         # if self.collide['Down'] == False:
         self.y -= self.down_vel
-        block = self.world.CollisionCheck(self)
-        if block:
-            self.y += (block.y + block.height) - self.y
+        if self.world.CollisionCheck(self):
+            self.y += (self.world.block.y + self.world.block.height) - self.y
             
     def move_right(self, dt):
         # if self.collide['Right'] == False:
         self.x += self.right_vel 
-        block = self.world.CollisionCheck(self)
-        if block:
-            self.x -= (self.x + self.width) - block.x
+        if self.world.CollisionCheck(self):
+            self.x -= (self.x + self.width) - self.world.block.x
             
     def move_left(self, dt):
         # if self.collide['Left'] == False:
         self.x -= self.left_vel 
-        block = self.world.CollisionCheck(self)
-        if block:
-            self.x += (block.x + block.width) - self.x
+        if self.world.CollisionCheck(self):
+            self.x += (self.world.block.x + self.world.block.width) - self.x
 
     # def Moving(self):
         # y = self.up_vel - self.down_vel
