@@ -51,7 +51,7 @@ class Window(pyglet.window.Window):
         # else:
             # self.label.text = ''
             # self.player.Moving()
-        self.player.down_vel += self.physics.Gravitation(self.player.down_vel)
+        #self.player.down_vel += self.physics.Gravitation(self.player.down_vel)
         self.player.move_up(dt)
         self.player.move_down(dt)
         self.player.move_right(dt)
@@ -61,6 +61,7 @@ class Window(pyglet.window.Window):
         #move up:
         if self.key_holder['Up']:
             if self.player.up_vel < self.player.max_speed:
+            
                 self.player.up_vel += 0.1 * self.player.max_speed
             else:
                 self.player.up_vel = self.player.max_speed
@@ -79,10 +80,10 @@ class Window(pyglet.window.Window):
             else:
                 self.player.down_vel = self.player.max_speed
         else:
-            if self.player.down_vel > 0:
+            if self.player.down_vel > 5:
                 self.player.down_vel -= 0.1 * self.player.max_speed 
             else:
-                self.player.down_vel = 0
+                self.player.down_vel = 5
         
 
         #move right:

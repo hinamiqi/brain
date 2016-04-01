@@ -33,7 +33,7 @@ class Player(Actor):
         self.delta_y = 0
         self.max_speed = 10
         self.up_vel = 0
-        self.down_vel = 0
+        self.down_vel = 5
         self.left_vel = 0
         self.right_vel = 0
         self.collide = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
