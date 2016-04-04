@@ -30,15 +30,13 @@ class Player(Actor):
     def __init__(self, world, color, start_x, start_y, width, height):
         super().__init__(color, start_x, start_y, width, height)
         self.world = world
-        self.delta_x = 0
-        self.delta_y = 0
-        self.max_speed = 10
+        self.max_speed = 7
         self.up_vel = 0
         self.down_vel = 5
         self.left_vel = 0
         self.right_vel = 0
         self.jumping = False
-        self.collide = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
+
 
     
     def move_up(self, dt):
@@ -54,8 +52,9 @@ class Player(Actor):
         self.y -= self.down_vel
         block = self.world.CollisionCheck(self)
         if block:
+            self.down_vel = 0
             self.y += (block.y + block.height) - self.y
-            self.jumping = False
+            #self.jumping = False
             
     def move_right(self, dt):
 
@@ -70,6 +69,7 @@ class Player(Actor):
         self.x -= self.left_vel 
         block = self.world.CollisionCheck(self)
         if block:
+            self.left_vel = 0
             self.x += (block.x + block.width) - self.x
 
 

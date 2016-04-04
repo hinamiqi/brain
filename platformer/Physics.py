@@ -17,9 +17,16 @@ class World(object):
                 return block2
         return False
         
+    def TouchCheck(self, block1):
+        for block2 in self.objects:
+            if block1.y == block2.y + block2.height and \
+                block1.x < block2.x + block2.width and \
+                block1.x + block1.width > block2.x:
+                    return True
+        
     def AddObject(self, block):
         self.objects.append(block)
-        print(self.objects)
+        #print(self.objects)
 
     def Gravitation(self, vel):
         if vel < self.grav_const:
