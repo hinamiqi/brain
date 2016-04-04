@@ -6,13 +6,13 @@ class World(object):
         self.objects = []
         self.grav_const = 10
 
-        
-    def CollisionCheck(self, block1):
+      
+    def CollisionCheck2(self, x, y, w, h):
         for block2 in self.objects:
-            if block1.x < block2.x + block2.width and \
-               block1.x + block1.width > block2.x and \
-               block1.y < block2.y + block2.height and \
-               block1.height + block1.y > block2.y:
+            if x < block2.x + block2.width and \
+               x + w > block2.x and \
+               y < block2.y + block2.height and \
+               y + h > block2.y:
                 
                 return block2
         return False

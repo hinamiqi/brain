@@ -6,26 +6,25 @@ from Actors import *
 from Physics import World
 from MapLoader import *
 
+
+#Colors const.
+
 backgroundColor = [176, 224, 230, 255]
 playerColor = [107, 142, 35]
 blockColor = [184, 134, 11]
 
-# level = [
-        # [1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-        # [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        # [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-        # [1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
-        # [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        # [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-        # [1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-        # [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-       # ]
-       
+#list 10*10: 1- block, 0 - None        
 level = LoadLevel()
+
        
 class Map(object):
+    '''
+    Load all "blocks" in World object.
+    map - list 10*10 of 1's and 0's
+    physics - object which contains all static blocks (x,y, width,
+    height, color)
+       
+    '''
     
     def __init__(self, map, physics):
         self.map = map
@@ -54,59 +53,63 @@ class Window(pyglet.window.Window):
 
     def __init__(self):
         super().__init__(500, 500)
-        # pyglet.gl.glColor3f(*rgb_to_pyglet(backgroundColor))
+     
+        #background color
         pyglet.gl.glClearColor(*rgb_to_pyglet(backgroundColor))
-
-        self.key_holder = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
-        self.physics = World()
-        self.map = Map(level, self.physics)
-        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 15, 50)
-        self.map.CreateActors()
-        #print(self.map.blocks)
-        # self.block = Actor(rgb_to_pyglet(blockColor), 100, 200, 100, 50)
-        # self.block1 = Actor(rgb_to_pyglet(blockColor), 0, 50, 300, 50)
-        # self.block2 = Actor(rgb_to_pyglet(blockColor), 300, 50, 100, 100)
         
-        # self.physics.AddObject(self.block)
-        # self.physics.AddObject(self.block1)
-        # self.physics.AddObject(self.block2)
+        #for the keys state
+        self.key_holder = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
+        
+        #object to carry all static blocks
+        self.physics = World()
+        
+        '''
+        load map list from image file. Image 10*10 b&w. Black pixel-
+        block, white - None
+        '''
+        self.map = Map(level, self.physics)
+        
+        '''player object.
+        Params:
+        World - all object to interact
+        Color
+        x
+        y
+        width
+        height
+        '''
+        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 15, 30)
+        
+        #create blocks from level file
+        self.map.CreateActors()
+        
+        #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=440,
                                            anchor_x='left', anchor_y='bottom')
+        
+        #call update() every 1/60 s
         pyglet.clock.schedule_interval(self.update, 1/60)
 
   
     def draw_all(self):
+        #draw all the things 
         self.clear()
         self.player.draw()
-        # self.block.draw()
-        # self.block1.draw()
-        # self.block2.draw()
         self.label.draw()
         for block in self.map.blocks:
-            
             block.draw()
 
     def update(self, dt):
-
-        #self.player.CollisionCheck(self.block)
         
-        # if self.physics.CollisionCheck(self.player, self.block):
-            # self.label.text = 'Yay!'
-        # else:
-            # self.label.text = ''
-        # if self.physics.CollisionCheck(self.player):
-            # self.label.text = 'Collision!'
-        # else:
-            # self.label.text = ''
-            # self.player.Moving()
-        #self.player.down_vel += self.physics.Gravitation(self.player.down_vel)
+        #update position of player 
         self.player.move_up(dt)
         self.player.move_down(dt)
         self.player.move_right(dt)
         self.player.move_left(dt)
         
-        
+        #check if player touches any walls, flours etc
+        #+gravitation and jumping bool
         if self.physics.TouchCheck(self.player):
             self.player.jumping = False
             friction = 1
@@ -119,27 +122,27 @@ class Window(pyglet.window.Window):
                 self.player.down_vel = 10
             self.label.text = 'Air'
             
-        #move up:
-        # if self.key_holder['Up']:
-            # if self.player.up_vel < self.player.max_speed:
+        #velocity of up direction
+        if self.key_holder['Up']:
+            if self.player.up_vel < self.player.max_speed:
             
-                # self.player.up_vel += 0.1 * self.player.max_speed
-            # else:
-                # self.player.up_vel = self.player.max_speed
+                self.player.up_vel += 0.1 * 20
+            else:
+                self.player.up_vel = 20
 
-        # else:
-        if self.player.up_vel > 0:
-            self.player.up_vel -= 0.1 * self.player.max_speed
         else:
-            self.player.up_vel = 0
+            if self.player.up_vel > 0:
+                self.player.up_vel -= 0.1 * self.player.max_speed
+            else:
+                self.player.up_vel = 0
     
 
-        #move down:
-        # if self.key_holder['Down']:
-            # if self.player.down_vel < self.player.max_speed:
-                # self.player.down_vel += 0.1 * self.player.max_speed
-            # else:
-                # self.player.down_vel = self.player.max_speed
+        #velocity of down direction
+        if self.key_holder['Down']:
+            if self.player.down_vel < self.player.max_speed:
+                self.player.down_vel += 0.1 * self.player.max_speed
+            else:
+                self.player.down_vel = self.player.max_speed
         # else:
             # if self.player.down_vel < 10:
                 # self.player.down_vel += 0.1 * self.player.max_speed 
@@ -147,7 +150,7 @@ class Window(pyglet.window.Window):
                 # self.player.down_vel = 10
         
 
-        #move right:
+        #velocity of right direction
         if self.key_holder['Right']:
             if self.player.right_vel < self.player.max_speed:
                 self.player.right_vel += 0.1 * self.player.max_speed * friction
@@ -160,7 +163,7 @@ class Window(pyglet.window.Window):
                 self.player.right_vel = 0
         
 
-        #move left:
+        #velocity of left direction
         if self.key_holder['Left']:
             if self.player.left_vel < self.player.max_speed:
                 self.player.left_vel += 0.1 * self.player.max_speed * friction
@@ -172,7 +175,7 @@ class Window(pyglet.window.Window):
             else:
                 self.player.left_vel = 0
         
-        
+        #and draw everything
         self.draw_all()
         
         
@@ -194,6 +197,7 @@ class Window(pyglet.window.Window):
                 self.player.up_vel = 20
                 self.player.jumping = True
         elif key == pyglet.window.key.R:
+            #reset all player vars
             self.player.x = 100
             self.player.y = 300
             self.player.up_vel = 0
@@ -214,7 +218,7 @@ class Window(pyglet.window.Window):
         elif key == pyglet.window.key.LEFT:
             self.key_holder['Left'] = False
 
-
+#normalize 0-255 to 0-1
 def rgb_to_pyglet(list):
     result = []
     for i in list:
