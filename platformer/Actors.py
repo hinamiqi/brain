@@ -37,15 +37,16 @@ class Player(Actor):
         self.right_vel = 0
         self.jumping = False
 
-
-    
+        
+        
+      
     def move_up(self, dt):
  
         self.y += self.up_vel 
         block = self.world.CollisionCheck(self)
         if block:
             self.up_vel = 0
-            self.y -= (self.y + self.height) - block.y 
+            self.y = block.y - self.height
 
     def move_down(self, dt):
 
@@ -53,16 +54,15 @@ class Player(Actor):
         block = self.world.CollisionCheck(self)
         if block:
             self.down_vel = 0
-            self.y += (block.y + block.height) - self.y
-            #self.jumping = False
-            
+            self.y = block.y + block.height
+                       
     def move_right(self, dt):
 
         self.x += self.right_vel 
         block = self.world.CollisionCheck(self)
         if block:
             self.right_vel = 0
-            self.x -= (self.x + self.width) - block.x
+            self.x = block.x - self.width 
             
     def move_left(self, dt):
 
@@ -70,7 +70,40 @@ class Player(Actor):
         block = self.world.CollisionCheck(self)
         if block:
             self.left_vel = 0
-            self.x += (block.x + block.width) - self.x
+            self.x = block.x + block.width
+
+    
+    # def move_up(self, dt):
+ 
+        # self.y += self.up_vel 
+        # block = self.world.CollisionCheck(self)
+        # if block:
+            # self.up_vel = 0
+            # self.y -= (self.y + self.height) - block.y 
+
+    # def move_down(self, dt):
+
+        # self.y -= self.down_vel
+        # block = self.world.CollisionCheck(self)
+        # if block:
+            # self.down_vel = 0
+            # self.y += (block.y + block.height) - self.y
+                       
+    # def move_right(self, dt):
+
+        # self.x += self.right_vel 
+        # block = self.world.CollisionCheck(self)
+        # if block:
+            # self.right_vel = 0
+            # self.x -= (self.x + self.width) - block.x
+            
+    # def move_left(self, dt):
+
+        # self.x -= self.left_vel 
+        # block = self.world.CollisionCheck(self)
+        # if block:
+            # self.left_vel = 0
+            # self.x += (block.x + block.width) - self.x
 
 
 

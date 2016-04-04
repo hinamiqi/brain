@@ -24,6 +24,8 @@ class World(object):
                 block1.x + block1.width > block2.x:
                     return True
         
+                   
+        
     def AddObject(self, block):
         self.objects.append(block)
         #print(self.objects)

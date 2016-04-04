@@ -4,24 +4,26 @@
 import pyglet
 from Actors import *
 from Physics import World
+from MapLoader import *
 
 backgroundColor = [176, 224, 230, 255]
 playerColor = [107, 142, 35]
 blockColor = [184, 134, 11]
 
-level = [
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-        [1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-        [1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-       ]
+# level = [
+        # [1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+        # [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        # [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+        # [1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+        # [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        # [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+        # [1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
+        # [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+       # ]
        
+level = LoadLevel()
        
 class Map(object):
     
@@ -58,7 +60,7 @@ class Window(pyglet.window.Window):
         self.key_holder = {'Up': False, 'Down': False, 'Left': False, 'Right': False}
         self.physics = World()
         self.map = Map(level, self.physics)
-        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 20, 50)
+        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 15, 50)
         self.map.CreateActors()
         #print(self.map.blocks)
         # self.block = Actor(rgb_to_pyglet(blockColor), 100, 200, 100, 50)
@@ -80,7 +82,7 @@ class Window(pyglet.window.Window):
         # self.block.draw()
         # self.block1.draw()
         # self.block2.draw()
-        # self.label.draw()
+        self.label.draw()
         for block in self.map.blocks:
             
             block.draw()
@@ -99,17 +101,23 @@ class Window(pyglet.window.Window):
             # self.label.text = ''
             # self.player.Moving()
         #self.player.down_vel += self.physics.Gravitation(self.player.down_vel)
-       
+        self.player.move_up(dt)
         self.player.move_down(dt)
         self.player.move_right(dt)
         self.player.move_left(dt)
-        self.player.move_up(dt)
+        
         
         if self.physics.TouchCheck(self.player):
             self.player.jumping = False
             friction = 1
+            self.label.text = 'Ground'
         else:
             friction = 0.4
+            if self.player.down_vel < 10:
+                self.player.down_vel += 0.1 * self.physics.grav_const
+            else:
+                self.player.down_vel = 10
+            self.label.text = 'Air'
             
         #move up:
         # if self.key_holder['Up']:
@@ -127,16 +135,16 @@ class Window(pyglet.window.Window):
     
 
         #move down:
-        if self.key_holder['Down']:
-            if self.player.down_vel < self.player.max_speed:
-                self.player.down_vel += 0.1 * self.player.max_speed
-            else:
-                self.player.down_vel = self.player.max_speed
-        else:
-            if self.player.down_vel < 10:
-                self.player.down_vel += 0.1 * self.player.max_speed 
-            else:
-                self.player.down_vel = 10
+        # if self.key_holder['Down']:
+            # if self.player.down_vel < self.player.max_speed:
+                # self.player.down_vel += 0.1 * self.player.max_speed
+            # else:
+                # self.player.down_vel = self.player.max_speed
+        # else:
+            # if self.player.down_vel < 10:
+                # self.player.down_vel += 0.1 * self.player.max_speed 
+            # else:
+                # self.player.down_vel = 10
         
 
         #move right:
@@ -163,6 +171,8 @@ class Window(pyglet.window.Window):
                 self.player.left_vel -= 0.1 * self.player.max_speed * friction
             else:
                 self.player.left_vel = 0
+        
+        
         self.draw_all()
         
         
