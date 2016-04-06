@@ -119,8 +119,12 @@ class Window(pyglet.window.Window):
         
         #call update() every 1/60 s
         pyglet.clock.schedule_interval(self.update, 1/60)
+        
+        
 
   
+  
+            
     def draw_all(self):
         #draw all the things 
         
@@ -132,11 +136,11 @@ class Window(pyglet.window.Window):
         else:
             
             self.clear()
-            self.player.draw()
             for block in self.map.blocks:
                 block.draw()
-            
+            self.player.draw()
             self.label.draw()
+            
 
     def update(self, dt):
         # self.label.text = 'up: ' + str(round(self.player.up_vel)) + \
