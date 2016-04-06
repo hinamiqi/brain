@@ -7,11 +7,21 @@ from Physics import World
 from MapLoader import *
 
 
-#Colors const.
+#Const.
 
 backgroundColor = [176, 224, 230, 255]
 playerColor = [107, 142, 35]
 blockColor = [184, 134, 11]
+redColor = [255, 0, 0]
+
+#max. down_vel
+GRAVITY = 10
+#0-1
+FLYING_MOVESPEED = 0.2
+#up_vel max
+JUMP_HEIGHT = 15
+#0-1
+FRICTION = 0.8
 
 #list 10*10: 1- block, 0 - None        
 level = LoadLevel()
@@ -85,8 +95,9 @@ class Window(pyglet.window.Window):
         
         #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
-                                           x=10, y=440,
+                                           x=10, y=460,
                                            anchor_x='left', anchor_y='bottom')
+        
         
         #call update() every 1/60 s
         pyglet.clock.schedule_interval(self.update, 1/60)
@@ -101,6 +112,10 @@ class Window(pyglet.window.Window):
             block.draw()
 
     def update(self, dt):
+        self.label.text = 'up: ' + str(round(self.player.up_vel)) + \
+                          ' down: ' + str(round(self.player.down_vel)) + \
+                          ' right: ' + str(round(self.player.right_vel)) + \
+                          ' left: ' + str(round(self.player.left_vel)) 
         
         #update position of player 
         self.player.move_up(dt)
@@ -112,42 +127,54 @@ class Window(pyglet.window.Window):
         #+gravitation and jumping bool
         if self.physics.TouchCheck(self.player):
             self.player.jumping = False
-            friction = 1
-            self.label.text = 'Ground'
+            friction = FRICTION
+            # self.label.text = 'Ground'
         else:
-            friction = 0.4
-            if self.player.down_vel < 10:
-                self.player.down_vel += 0.1 * self.physics.grav_const
+            friction = FLYING_MOVESPEED
+            if self.player.down_vel < GRAVITY:
+                self.player.down_vel += 0.1 * GRAVITY
             else:
-                self.player.down_vel = 10
-            self.label.text = 'Air'
+                self.player.down_vel = GRAVITY
+            #self.label.text = 'Air'
+        
+        if self.player.up_vel > 0:
+            self.player.up_vel -= 0.1 * self.player.max_speed
+        else:
+            self.player.up_vel = 0
             
+        if self.player.down_vel > 0:
+            self.player.down_vel -= 0.1 * self.player.max_speed 
+        else:
+            self.player.down_vel = 0
+        
         #velocity of up direction
-        if self.key_holder['Up']:
-            if self.player.up_vel < self.player.max_speed:
+        # if self.key_holder['Up']:
+            # if self.player.up_vel < self.player.max_speed:
             
-                self.player.up_vel += 0.1 * 20
-            else:
-                self.player.up_vel = 20
+                # self.player.up_vel += 0.1 * self.player.max_speed
+            # else:
+                # self.player.up_vel = self.player.max_speed
 
-        else:
-            if self.player.up_vel > 0:
-                self.player.up_vel -= 0.1 * self.player.max_speed
-            else:
-                self.player.up_vel = 0
+        # else:
+            # if self.player.up_vel > 0:
+                # self.player.up_vel -= 0.1 * self.player.max_speed
+            # else:
+                # self.player.up_vel = 0
+        
+        
     
 
         #velocity of down direction
-        if self.key_holder['Down']:
-            if self.player.down_vel < self.player.max_speed:
-                self.player.down_vel += 0.1 * self.player.max_speed
-            else:
-                self.player.down_vel = self.player.max_speed
-        # else:
-            # if self.player.down_vel < 10:
-                # self.player.down_vel += 0.1 * self.player.max_speed 
+        # if self.key_holder['Down']:
+            # if self.player.down_vel < self.player.max_speed:
+                # self.player.down_vel += 0.1 * self.player.max_speed
             # else:
-                # self.player.down_vel = 10
+                # self.player.down_vel = self.player.max_speed
+        # else:
+            # if self.player.down_vel > 0:
+                # self.player.down_vel -= 0.1 * self.player.max_speed 
+            # else:
+                # self.player.down_vel = 0
         
 
         #velocity of right direction
@@ -194,7 +221,7 @@ class Window(pyglet.window.Window):
             self.key_holder['Left'] = True
         elif key == pyglet.window.key.SPACE:
             if not self.player.jumping:
-                self.player.up_vel = 20
+                self.player.up_vel = JUMP_HEIGHT
                 self.player.jumping = True
         elif key == pyglet.window.key.R:
             #reset all player vars
@@ -217,6 +244,7 @@ class Window(pyglet.window.Window):
             self.key_holder['Right'] = False
         elif key == pyglet.window.key.LEFT:
             self.key_holder['Left'] = False
+        
 
 #normalize 0-255 to 0-1
 def rgb_to_pyglet(list):

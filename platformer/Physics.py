@@ -14,7 +14,11 @@ class World(object):
                y < block2.y + block2.height and \
                y + h > block2.y:
                 
+                #block2.color = [1, 0, 0]
                 return block2
+            #else:
+                #block2.color = [0.61, 0.53, 0.05]
+            
         return False
         
     def TouchCheck(self, block1):

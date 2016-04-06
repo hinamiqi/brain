@@ -32,10 +32,11 @@ class Player(Actor):
         self.world = world
         self.max_speed = 7
         self.up_vel = 0
-        self.down_vel = 5
+        self.down_vel = 0
         self.left_vel = 0
         self.right_vel = 0
         self.jumping = False
+        self.inc = 0
 
             
     def move_up(self, dt):
@@ -54,7 +55,10 @@ class Player(Actor):
         block = self.world.CollisionCheck2(self.x, new_y, self.width, self.height)
         if block:
             self.down_vel = 0
+            self.up_vel = 0
+            
             self.y = block.y + block.height
+            print('yay')
         else:
             self.y -= self.down_vel
                        
