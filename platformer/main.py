@@ -112,7 +112,7 @@ class Window(pyglet.window.Window):
                                            x=10, y=460,
                                            anchor_x='left', anchor_y='bottom')
                                            
-        self.victory_msg = pyglet.text.Label("You win!!! Restart?", font_name='Arial', font_size=40, 
+        self.victory_msg = pyglet.text.Label("Teh WINRAR is YOU!", font_name='Arial', font_size=35, 
                                            x=256, y=256,
                                            anchor_x='center', anchor_y='center')
         
