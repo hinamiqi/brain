@@ -5,12 +5,14 @@ import pyglet
 
 class Actor(object):
 
-    def __init__(self, color, start_x, start_y, width, height):
+    def __init__(self, color, start_x, start_y, width, height, enemy=False, warp = False):
         self.color = color
         self.x = start_x
         self.y = start_y
         self.width = width
         self.height = height
+        self.enemy = enemy
+        self.warp = warp
         
 
     def _vert(self):
@@ -25,6 +27,7 @@ class Actor(object):
         pyglet.gl.glColor3f(*self.color)
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, \
                         ('v2f', self._vert()))
+                        
 
 class Player(Actor):
     def __init__(self, world, color, start_x, start_y, width, height):
@@ -58,7 +61,7 @@ class Player(Actor):
             self.up_vel = 0
             
             self.y = block.y + block.height
-            print('yay')
+            
         else:
             self.y -= self.down_vel
                        

@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import pyglet
+from Rules import *
 from Actors import *
 from Physics import World
 from MapLoader import *
@@ -12,6 +13,8 @@ from MapLoader import *
 backgroundColor = [176, 224, 230, 255]
 playerColor = [107, 142, 35]
 blockColor = [184, 134, 11]
+dblockColor = [227, 38, 54]
+warpColor = [102, 204, 102]
 redColor = [255, 0, 0]
 
 #max. down_vel
@@ -42,7 +45,7 @@ class Map(object):
         self.blocks = []
     
     def CreateActors(self):
-        i = 10
+        i = 16
         j = -1
         for row in self.map:
             i -= 1
@@ -51,8 +54,16 @@ class Map(object):
                 j += 1
                 #blocks
                 if col == 1:
-                    print(i, j)
-                    block = Actor(rgb_to_pyglet(blockColor), j*50, i*50, 50, 50)
+                    #print(i, j)
+                    block = Actor(rgb_to_pyglet(blockColor), j*32, i*32, 32, 32)
+                    self.blocks.append(block)
+                    self.physics.AddObject(block)
+                elif col == 2:
+                    block = Actor(rgb_to_pyglet(dblockColor), j*32, i*32, 32, 32, enemy=True)
+                    self.blocks.append(block)
+                    self.physics.AddObject(block)
+                elif col == 3:
+                    block = Actor(rgb_to_pyglet(warpColor), j*32+8, i*32+8, 16, 16, warp=True)
                     self.blocks.append(block)
                     self.physics.AddObject(block)
                     
@@ -62,7 +73,7 @@ class Map(object):
 class Window(pyglet.window.Window):
 
     def __init__(self):
-        super().__init__(500, 500)
+        super().__init__(512, 512)
      
         #background color
         pyglet.gl.glClearColor(*rgb_to_pyglet(backgroundColor))
@@ -79,6 +90,9 @@ class Window(pyglet.window.Window):
         '''
         self.map = Map(level, self.physics)
         
+        #object for all game events, vars etc
+        self.game = Game()
+        
         '''player object.
         Params:
         World - all object to interact
@@ -88,7 +102,7 @@ class Window(pyglet.window.Window):
         width
         height
         '''
-        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 15, 30)
+        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
         
         #create blocks from level file
         self.map.CreateActors()
@@ -97,6 +111,10 @@ class Window(pyglet.window.Window):
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=460,
                                            anchor_x='left', anchor_y='bottom')
+                                           
+        self.victory_msg = pyglet.text.Label("You win!!! Restart?", font_name='Arial', font_size=40, 
+                                           x=256, y=256,
+                                           anchor_x='center', anchor_y='center')
         
         
         #call update() every 1/60 s
@@ -105,37 +123,75 @@ class Window(pyglet.window.Window):
   
     def draw_all(self):
         #draw all the things 
-        self.clear()
-        self.player.draw()
-        self.label.draw()
-        for block in self.map.blocks:
-            block.draw()
+        
+        
+        if self.game.victory:
+            self.clear()
+            self.victory_msg.draw()
+            self.label.draw()
+        else:
+            
+            self.clear()
+            self.player.draw()
+            for block in self.map.blocks:
+                block.draw()
+            
+            self.label.draw()
 
     def update(self, dt):
-        self.label.text = 'up: ' + str(round(self.player.up_vel)) + \
-                          ' down: ' + str(round(self.player.down_vel)) + \
-                          ' right: ' + str(round(self.player.right_vel)) + \
-                          ' left: ' + str(round(self.player.left_vel)) 
+        # self.label.text = 'up: ' + str(round(self.player.up_vel)) + \
+                          # ' down: ' + str(round(self.player.down_vel)) + \
+                          # ' right: ' + str(round(self.player.right_vel)) + \
+                          # ' left: ' + str(round(self.player.left_vel)) 
         
+        #self.label.text = str(self.physics.collide)
         #update position of player 
-        self.player.move_up(dt)
+        
         self.player.move_down(dt)
         self.player.move_right(dt)
         self.player.move_left(dt)
+        self.player.move_up(dt)
         
         #check if player touches any walls, flours etc
         #+gravitation and jumping bool
-        if self.physics.TouchCheck(self.player):
+        self.physics.TouchCheck(self.player)
+        if len(self.physics.collide_d) > 0:
             self.player.jumping = False
             friction = FRICTION
-            # self.label.text = 'Ground'
+            for block in self.physics.collide_d:
+                if block.enemy:
+                    self.game.player_live = False
         else:
             friction = FLYING_MOVESPEED
             if self.player.down_vel < GRAVITY:
                 self.player.down_vel += 0.1 * GRAVITY
             else:
                 self.player.down_vel = GRAVITY
-            #self.label.text = 'Air'
+           
+        if len(self.physics.collide_r) > 0:
+            for block in self.physics.collide_r:
+                if block.enemy:
+                    self.game.player_live = False
+        
+        if len(self.physics.collide_u) > 0:
+            for block in self.physics.collide_u:
+                if block.enemy:
+                    self.game.player_live = False
+        
+        if len(self.physics.collide_l) > 0:
+            for block in self.physics.collide_l:
+                if block.enemy:
+                    self.game.player_live = False
+        
+        
+          #game events check
+        if not self.game.player_live:
+            self.Restart()
+            
+        if self.physics.warp_collide:
+            self.game.victory = True
+            
+        
         
         if self.player.up_vel > 0:
             self.player.up_vel -= 0.1 * self.player.max_speed
@@ -202,13 +258,27 @@ class Window(pyglet.window.Window):
             else:
                 self.player.left_vel = 0
         
+      
+        #self.label.text = str(self.game.victory)
+        
         #and draw everything
         self.draw_all()
         
         
-        
-        
+    def Restart(self):
+        #reset all player vars
+        self.player.x = 100
+        self.player.y = 300
+        self.player.up_vel = 0
+        self.player.down_vel = 5
+        self.player.left_vel = 0
+        self.player.right_vel = 0
+        self.game.player_live = True
+        self.game.victory = False
 
+       
+        
+        
 
     def on_key_press(self, key, modifiers):
         if key == pyglet.window.key.UP:
@@ -224,13 +294,9 @@ class Window(pyglet.window.Window):
                 self.player.up_vel = JUMP_HEIGHT
                 self.player.jumping = True
         elif key == pyglet.window.key.R:
-            #reset all player vars
-            self.player.x = 100
-            self.player.y = 300
-            self.player.up_vel = 0
-            self.player.down_vel = 5
-            self.player.left_vel = 0
-            self.player.right_vel = 0
+            self.Restart()
+            
+            
         elif key == pyglet.window.key.ESCAPE:
             pyglet.app.exit()
          
