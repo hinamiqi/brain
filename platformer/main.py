@@ -44,7 +44,7 @@ class Map(object):
         self.physics = physics
         self.blocks = []
     
-    def CreateActors(self):
+    def CreateActors(self, batch):
         i = 16
         j = -1
         for row in self.map:
@@ -55,17 +55,18 @@ class Map(object):
                 #blocks
                 if col == 1:
                     #print(i, j)
-                    block = Actor(rgb_to_pyglet(blockColor), j*32, i*32, 32, 32)
+                    block = Actor(blockColor, j*32, i*32, 32, 32)
                     self.blocks.append(block)
                     self.physics.AddObject(block)
                 elif col == 2:
-                    block = Actor(rgb_to_pyglet(dblockColor), j*32, i*32, 32, 32, enemy=True)
+                    block = Actor(dblockColor, j*32, i*32, 32, 32, enemy=True)
                     self.blocks.append(block)
                     self.physics.AddObject(block)
                 elif col == 3:
-                    block = Actor(rgb_to_pyglet(warpColor), j*32+8, i*32+8, 16, 16, warp=True)
+                    block = Actor(warpColor, j*32+8, i*32+8, 16, 16, warp=True)
                     self.blocks.append(block)
                     self.physics.AddObject(block)
+                block.AddToBatch(batch)
                     
   
        
@@ -104,8 +105,10 @@ class Window(pyglet.window.Window):
         '''
         self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
         
+        self.batch = pyglet.graphics.Batch()
+        
         #create blocks from level file
-        self.map.CreateActors()
+        self.map.CreateActors(self.batch)
         
         #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
@@ -116,6 +119,7 @@ class Window(pyglet.window.Window):
                                            x=256, y=256,
                                            anchor_x='center', anchor_y='center')
         
+        self.fps_display = pyglet.clock.ClockDisplay()
         
         #call update() every 1/60 s
         pyglet.clock.schedule_interval(self.update, 1/60)
@@ -136,11 +140,13 @@ class Window(pyglet.window.Window):
         else:
             
             self.clear()
-            for block in self.map.blocks:
-                block.draw()
+            # for block in self.map.blocks:
+                # block.draw()
+            self.batch.draw()
             self.player.draw()
             self.label.draw()
             
+        self.fps_display.draw()
 
     def update(self, dt):
         # self.label.text = 'up: ' + str(round(self.player.up_vel)) + \

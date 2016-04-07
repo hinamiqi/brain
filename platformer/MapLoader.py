@@ -4,7 +4,7 @@
 #import PIL
 import PIL.Image
 
-im = PIL.Image.open("map2.bmp")
+im = PIL.Image.open("map1.bmp")
 # rgb = im.getpixel((1,1))
 # print(rgb)
 

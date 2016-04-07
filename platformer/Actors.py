@@ -15,7 +15,7 @@ class Actor(object):
         self.warp = warp
         
 
-    def _vert(self):
+    def _verts(self):
         verts = [self.x, self.y,
                  self.x + self.width, self.y,
                  self.x + self.width, self.y + self.height,
@@ -26,8 +26,15 @@ class Actor(object):
 #         r, g, b = self.rgb_to_pyglet(self.color)
         pyglet.gl.glColor3f(*self.color)
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, \
-                        ('v2f', self._vert()))
-                        
+                        ('v2f', self._verts()))
+    
+    def AddToBatch(self, batch):
+        color = []
+        for i in range(4):
+            color.extend(self.color)
+        self._vertex_list = batch.add(4, pyglet.gl.GL_QUADS, None, \
+                        ('v2f', self._verts()), ('c3B', color))
+        
 
 class Player(Actor):
     def __init__(self, world, color, start_x, start_y, width, height):
