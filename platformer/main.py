@@ -2,11 +2,13 @@
 # -*- coding: UTF-8 -*-
 
 import pyglet
+import numpy as np
+
 from Rules import *
 from Actors import *
 from Physics import World
 from MapLoader import *
-
+from math import copysign, sin, cos, pi
 
 #Const.
 
@@ -43,7 +45,9 @@ class Map(object):
         self.map = map
         self.physics = physics
         self.blocks = []
-    
+        self.x = 100
+        self.y = 300
+        
     def CreateActors(self, batch):
         i = 16
         j = -1
@@ -53,20 +57,23 @@ class Map(object):
             for col in row:
                 j += 1
                 #blocks
-                if col == 1:
-                    #print(i, j)
-                    block = Actor(blockColor, j*32, i*32, 32, 32)
-                    self.blocks.append(block)
-                    self.physics.AddObject(block)
-                elif col == 2:
-                    block = Actor(dblockColor, j*32, i*32, 32, 32, enemy=True)
-                    self.blocks.append(block)
-                    self.physics.AddObject(block)
-                elif col == 3:
-                    block = Actor(warpColor, j*32+8, i*32+8, 16, 16, warp=True)
-                    self.blocks.append(block)
-                    self.physics.AddObject(block)
-                block.AddToBatch(batch)
+                if col != 0:
+                    if col == 1:
+                        #print(i, j)
+                        block = Actor(blockColor, j*32, i*32, 32, 32)
+                        self.blocks.append(block)
+                        self.physics.AddObject(block)
+                    elif col == 2:
+                        block = Actor(dblockColor, j*32, i*32, 32, 32, enemy=True)
+                        self.blocks.append(block)
+                        self.physics.AddObject(block)
+                    elif col == 3:
+                        block = Actor(warpColor, j*32+8, i*32+8, 16, 16, warp=True)
+                        self.blocks.append(block)
+                        self.physics.AddObject(block)
+                    elif col == 4:
+                        self.x, self.y = j*32, i*32
+                    block.AddToBatch(batch)
                     
   
        
@@ -103,13 +110,14 @@ class Window(pyglet.window.Window):
         width
         height
         '''
-        self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
-        
-        self.batch = pyglet.graphics.Batch()
         
         #create blocks from level file
+        self.batch = pyglet.graphics.Batch()
         self.map.CreateActors(self.batch)
         
+        #self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
+        self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
+       
         #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=460,
@@ -161,6 +169,21 @@ class Window(pyglet.window.Window):
         self.player.move_right(dt)
         self.player.move_left(dt)
         self.player.move_up(dt)
+        
+        #stage borders
+        self.game.StageBorder(self.player.x, self.player.y)
+        
+                   
+        if self.player.jumping == True:
+            self.label.text = 'jump'
+            height = self.player.y - self.player.jumppoint
+            sp = height/JUMP_HEIGHT
+            sp = np.cos(sp*np.pi/2)
+            if sp > 0.25:
+                self.player.up_vel += sp * 10
+            else:
+                self.player.jumppoint = self.player.y
+                #self.player.jumping = False
         
         #check if player touches any walls, flours etc
         #+gravitation and jumping bool
@@ -267,6 +290,8 @@ class Window(pyglet.window.Window):
                 self.player.left_vel -= 0.1 * self.player.max_speed * friction
             else:
                 self.player.left_vel = 0
+                
+     
         
       
         #self.label.text = str(self.game.victory)
@@ -277,10 +302,10 @@ class Window(pyglet.window.Window):
         
     def Restart(self):
         #reset all player vars
-        self.player.x = 100
-        self.player.y = 300
+        self.player.x = self.map.x
+        self.player.y = self.map.y
         self.player.up_vel = 0
-        self.player.down_vel = 5
+        self.player.down_vel = 0
         self.player.left_vel = 0
         self.player.right_vel = 0
         self.game.player_live = True
@@ -300,8 +325,9 @@ class Window(pyglet.window.Window):
         elif key == pyglet.window.key.LEFT:
             self.key_holder['Left'] = True
         elif key == pyglet.window.key.SPACE:
-            if not self.player.jumping:
-                self.player.up_vel = JUMP_HEIGHT
+            if self.player.jumping == False:
+                #self.player.up_vel = JUMP_HEIGHT
+                self.player.jumppoint = self.player.y
                 self.player.jumping = True
         elif key == pyglet.window.key.R:
             self.Restart()
@@ -320,6 +346,7 @@ class Window(pyglet.window.Window):
             self.key_holder['Right'] = False
         elif key == pyglet.window.key.LEFT:
             self.key_holder['Left'] = False
+        
         
 
 #normalize 0-255 to 0-1

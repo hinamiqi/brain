@@ -19,6 +19,8 @@ def LoadLevel():
                 level[i].append(2) #death block
             elif im.getpixel((j,i)) == (0, 255, 0):
                 level[i].append(3) #way out
+            elif im.getpixel((j,i)) == (0, 0, 255):
+                level[i].append(4) #start
             else:
                 level[i].append(0)
     return level
