@@ -66,6 +66,8 @@ class Map(object):
                     block = Actor(warpColor, j*32+8, i*32+8, 16, 16, warp=True)
                     self.blocks.append(block)
                     self.physics.AddObject(block)
+                else:
+                    continue # иначе если первый пиксель белый, то block не создатся и будет ругаться на local variable referenced before assignment.
                 block.AddToBatch(batch)
                     
   
