@@ -183,13 +183,13 @@ class Window(pyglet.window.Window):
                 self.player.up_vel += sp * 10
             else:
                 self.player.jumppoint = self.player.y
-                #self.player.jumping = False
+                self.player.jumping = False
         
         #check if player touches any walls, flours etc
         #+gravitation and jumping bool
         self.physics.TouchCheck(self.player)
         if len(self.physics.collide_d) > 0:
-            self.player.jumping = False
+            #self.player.jumping = False
             friction = FRICTION
             for block in self.physics.collide_d:
                 if block.enemy:
@@ -325,7 +325,7 @@ class Window(pyglet.window.Window):
         elif key == pyglet.window.key.LEFT:
             self.key_holder['Left'] = True
         elif key == pyglet.window.key.SPACE:
-            if self.player.jumping == False:
+            if len(self.physics.collide_d) > 0:
                 #self.player.up_vel = JUMP_HEIGHT
                 self.player.jumppoint = self.player.y
                 self.player.jumping = True
