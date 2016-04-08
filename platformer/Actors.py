@@ -55,6 +55,7 @@ class Player(Actor):
         block = self.world.CollisionCheck2(self.x, new_y, self.width, self.height)
         if block:
             self.up_vel = 0
+            self.jumping = False
             self.y = block.y - self.height
         else:
             self.y += self.up_vel

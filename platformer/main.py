@@ -4,11 +4,14 @@
 import pyglet
 import numpy as np
 
+from pyglet.gl import *
+from math import copysign, sin, cos, pi
+
 from Rules import *
 from Actors import *
 from Physics import World
 from MapLoader import *
-from math import copysign, sin, cos, pi
+
 
 #Const.
 
@@ -24,10 +27,11 @@ GRAVITY = 10
 #0-1
 FLYING_MOVESPEED = 0.2
 #up_vel max
-JUMP_HEIGHT = 15
+JUMP_HEIGHT = 14
+DEATH_BOUNCE = 10
 #0-1
-FRICTION = 0.8
-
+FRICTION = 0.5
+INERTION = 1.3
 #list 10*10: 1- block, 0 - None        
 level = LoadLevel()
 
@@ -129,6 +133,11 @@ class Window(pyglet.window.Window):
         
         self.fps_display = pyglet.clock.ClockDisplay()
         
+        #camera
+        self.camera_x = self._width / 2
+        self.camera_y = self._height / 2
+        glOrtho(0, self._width, 0, self._height, -1, 1)
+        glViewport(0, 0, self.width, self.height) 
         #call update() every 1/60 s
         pyglet.clock.schedule_interval(self.update, 1/60)
         
@@ -139,7 +148,8 @@ class Window(pyglet.window.Window):
             
     def draw_all(self):
         #draw all the things 
-        
+        glLoadIdentity()
+        glTranslatef(-self.camera_x, -self.camera_y, 0)
         
         if self.game.victory:
             self.clear()
@@ -163,6 +173,9 @@ class Window(pyglet.window.Window):
                           # ' left: ' + str(round(self.player.left_vel)) 
         
         #self.label.text = str(self.physics.collide)
+        
+        self.label.text = str(self.game.player_hp)
+        
         #update position of player 
         
         self.player.move_down(dt)
@@ -170,12 +183,15 @@ class Window(pyglet.window.Window):
         self.player.move_left(dt)
         self.player.move_up(dt)
         
+        self.camera_x = self.player.x - (self._width / 2)
+        self.camera_y = self.player.y - (self._height / 2)
+        
         #stage borders
         self.game.StageBorder(self.player.x, self.player.y)
         
                    
         if self.player.jumping == True:
-            self.label.text = 'jump'
+            #self.label.text = 'jump'
             height = self.player.y - self.player.jumppoint
             sp = height/JUMP_HEIGHT
             sp = np.cos(sp*np.pi/2)
@@ -193,7 +209,9 @@ class Window(pyglet.window.Window):
             friction = FRICTION
             for block in self.physics.collide_d:
                 if block.enemy:
-                    self.game.player_live = False
+                    #self.game.player_live = False
+                    if self.game.DeathBlockCollision():
+                        self.player.up_vel += DEATH_BOUNCE
         else:
             friction = FLYING_MOVESPEED
             if self.player.down_vel < GRAVITY:
@@ -204,17 +222,23 @@ class Window(pyglet.window.Window):
         if len(self.physics.collide_r) > 0:
             for block in self.physics.collide_r:
                 if block.enemy:
-                    self.game.player_live = False
+                    #self.game.player_live = False
+                    if self.game.DeathBlockCollision():
+                        self.player.left_vel += DEATH_BOUNCE
         
         if len(self.physics.collide_u) > 0:
             for block in self.physics.collide_u:
                 if block.enemy:
-                    self.game.player_live = False
+                    #self.game.player_live = False
+                    if self.game.DeathBlockCollision():
+                        self.player.down_vel += DEATH_BOUNCE
         
         if len(self.physics.collide_l) > 0:
             for block in self.physics.collide_l:
                 if block.enemy:
-                    self.game.player_live = False
+                    #self.game.player_live = False
+                    if self.game.DeathBlockCollision():
+                        self.player.right_vel += DEATH_BOUNCE
         
         
           #game events check
@@ -235,36 +259,7 @@ class Window(pyglet.window.Window):
             self.player.down_vel -= 0.1 * self.player.max_speed 
         else:
             self.player.down_vel = 0
-        
-        #velocity of up direction
-        # if self.key_holder['Up']:
-            # if self.player.up_vel < self.player.max_speed:
-            
-                # self.player.up_vel += 0.1 * self.player.max_speed
-            # else:
-                # self.player.up_vel = self.player.max_speed
-
-        # else:
-            # if self.player.up_vel > 0:
-                # self.player.up_vel -= 0.1 * self.player.max_speed
-            # else:
-                # self.player.up_vel = 0
-        
-        
-    
-
-        #velocity of down direction
-        # if self.key_holder['Down']:
-            # if self.player.down_vel < self.player.max_speed:
-                # self.player.down_vel += 0.1 * self.player.max_speed
-            # else:
-                # self.player.down_vel = self.player.max_speed
-        # else:
-            # if self.player.down_vel > 0:
-                # self.player.down_vel -= 0.1 * self.player.max_speed 
-            # else:
-                # self.player.down_vel = 0
-        
+ 
 
         #velocity of right direction
         if self.key_holder['Right']:
@@ -274,7 +269,7 @@ class Window(pyglet.window.Window):
                 self.player.right_vel = self.player.max_speed * friction
         else:
             if self.player.right_vel > 0:
-                self.player.right_vel -= 0.1 * self.player.max_speed * friction
+                self.player.right_vel -= 0.1 * self.player.max_speed * friction * INERTION
             else:
                 self.player.right_vel = 0
         
@@ -287,7 +282,7 @@ class Window(pyglet.window.Window):
                 self.player.left_vel = self.player.max_speed * friction
         else:
             if self.player.left_vel > 0:
-                self.player.left_vel -= 0.1 * self.player.max_speed * friction
+                self.player.left_vel -= 0.1 * self.player.max_speed * friction * INERTION
             else:
                 self.player.left_vel = 0
                 
@@ -309,6 +304,7 @@ class Window(pyglet.window.Window):
         self.player.left_vel = 0
         self.player.right_vel = 0
         self.game.player_live = True
+        self.game.player_hp = 3
         self.game.victory = False
 
        
@@ -331,7 +327,15 @@ class Window(pyglet.window.Window):
                 self.player.jumping = True
         elif key == pyglet.window.key.R:
             self.Restart()
-            
+        #camera
+        elif key == pyglet.window.key.W:
+            self.camera_y -= 50
+        elif key == pyglet.window.key.S:
+            self.camera_y += 50
+        elif key == pyglet.window.key.D:
+            self.camera_x -= 50
+        elif key == pyglet.window.key.A:
+            self.camera_x += 50
             
         elif key == pyglet.window.key.ESCAPE:
             pyglet.app.exit()
