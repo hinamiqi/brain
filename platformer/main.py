@@ -11,6 +11,7 @@ from Rules import *
 from Actors import *
 from Physics import World
 from MapLoader import *
+from Menu import *
 
 
 #Const.
@@ -100,9 +101,15 @@ class Window(pyglet.window.Window):
         load map list from image file. Image 10*10 b&w. Black pixel-
         block, white - None
         '''
-        self.map = Map(level, self.physics)
-        
+#         self.map = Map(level, self.physics)
+        self.map = None
        
+    
+        '''
+        Menu object
+        '''
+        self.menu = GameMenu(x = lambda: self.width // 2.5, y = lambda: self.height // 1.5, 
+            height = lambda: self.height)
         
         '''player object.
         Params:
@@ -116,14 +123,15 @@ class Window(pyglet.window.Window):
         
         #create blocks from level file
         self.batch = pyglet.graphics.Batch()
-        self.map.CreateActors(self.batch)
+#         self.map.CreateActors(self.batch)
         
         #self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
-        self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
+#         self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
        
         
         #object for all game events, vars etc
-        self.game = Game(self.player)
+        # self.game = Game(self.player)
+        self.game = None
         
         #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
@@ -167,14 +175,18 @@ class Window(pyglet.window.Window):
         self.setup2d()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
+        if self.map:
+            self.draw_game()
+        else:
+            self.menu.draw()
+    
+    def draw_game(self):
         glTranslatef(-self.camera_x, -self.camera_y - self.player.height, 0)
         #draw all the things 
         if self.game.victory:
             self.clear()
             self.victory_msg.draw()
-            
         else:
-            
             self.clear()
             # for block in self.map.blocks:
                 # block.draw()
@@ -186,7 +198,6 @@ class Window(pyglet.window.Window):
         
         self.label2.draw()
         self.fps_display.draw()
-        
     
     def Invuln(self):
         if self.time > 60:
@@ -202,6 +213,9 @@ class Window(pyglet.window.Window):
         
     
     def update(self, dt):
+        if not self.map: 
+            self.draw_all()
+            return
         # self.label.text = 'up: ' + str(round(self.player.up_vel)) + \
                           # ' down: ' + str(round(self.player.down_vel)) + \
                           # ' right: ' + str(round(self.player.right_vel)) + \
@@ -356,6 +370,20 @@ class Window(pyglet.window.Window):
         
 
     def on_key_press(self, key, modifiers):
+        if not self.map:
+            if key == pyglet.window.key.DOWN:
+                self.menu.select_next()
+            elif key == pyglet.window.key.UP:
+                self.menu.select_previous()
+            elif key == pyglet.window.key.RETURN:
+                self.map = Map(LoadLevel(self.menu.levels[self.menu.selected]), self.physics)
+                self.map.CreateActors(self.batch)
+                self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
+                self.game = Game(self.player)
+            elif key == pyglet.window.key.ESCAPE:
+                pyglet.app.exit()
+            return
+    
         if key == pyglet.window.key.UP:
             self.key_holder['Up'] = True
         elif key == pyglet.window.key.DOWN:

@@ -4,11 +4,11 @@
 #import PIL
 import PIL.Image
 
-im = PIL.Image.open("map1.bmp")
 # rgb = im.getpixel((1,1))
 # print(rgb)
 
-def LoadLevel():
+def LoadLevel(path="map1.bmp"):
+    im = PIL.Image.open(path)
     level = []
     for i in range(16):
         level.append([])
