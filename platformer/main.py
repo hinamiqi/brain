@@ -160,7 +160,6 @@ class Window(pyglet.window.Window):
 
     def setup2d(self):
        
-        
         glColor3ub(255,255,255)
         glDisable(GL_DEPTH_TEST)
         glViewport(0, 0, self._width, self._height) 

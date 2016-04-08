@@ -4,8 +4,8 @@
 import pyglet
 import os
 
-UNSELECTED = (255, 255, 11, 255)
-SELECTED = (107, 142, 35, 255)
+UNSELECTED = (184, 134, 11, 255)
+SELECTED = (190, 34, 35, 255)
 
 class GameMenu(object):
 	"""
@@ -41,8 +41,8 @@ class GameMenu(object):
 		self.buttons = []
 		for button in self.levels:
 			setattr(self, button.lower().replace(".bmp",""), pyglet.text.Label(
-				button, anchor_x="left", anchor_y="top", font_name='Arial',
-				color=UNSELECTED, batch=self.batch))
+				button.lower().replace(".bmp",""), anchor_x="left", anchor_y="top", 
+				font_name='Arial', color=UNSELECTED, batch=self.batch))
 			self.buttons.append(eval("self."+button.lower().replace(".bmp","")))
 		
 		if len(self.buttons) > 0:
