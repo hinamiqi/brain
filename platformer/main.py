@@ -102,8 +102,7 @@ class Window(pyglet.window.Window):
         '''
         self.map = Map(level, self.physics)
         
-        #object for all game events, vars etc
-        self.game = Game()
+       
         
         '''player object.
         Params:
@@ -122,11 +121,18 @@ class Window(pyglet.window.Window):
         #self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
         self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
        
+        
+        #object for all game events, vars etc
+        self.game = Game(self.player)
+        
         #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=460,
                                            anchor_x='left', anchor_y='bottom')
-                                           
+        
+        self.label2 = pyglet.text.Label("", font_name='Arial', font_size=20, 
+                                           x=30, y=460,
+                                           anchor_x='left', anchor_y='bottom')                                   
         self.victory_msg = pyglet.text.Label("Teh WINRAR is YOU!", font_name='Arial', font_size=35, 
                                            x=256, y=256,
                                            anchor_x='center', anchor_y='center')
@@ -136,25 +142,37 @@ class Window(pyglet.window.Window):
         #camera
         self.camera_x = self._width / 2
         self.camera_y = self._height / 2
-        glOrtho(0, self._width, 0, self._height, -1, 1)
-        glViewport(0, 0, self.width, self.height) 
+       
+        self.time = 0
+        
         #call update() every 1/60 s
         pyglet.clock.schedule_interval(self.update, 1/60)
         
         
 
-  
+    def setup2d(self):
+       
+        
+        glColor3ub(255,255,255)
+        glDisable(GL_DEPTH_TEST)
+        glViewport(0, 0, self._width, self._height) 
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0, self.width, 0, self.height, -1, 1)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
   
             
     def draw_all(self):
-        #draw all the things 
-        glLoadIdentity()
-        glTranslatef(-self.camera_x, -self.camera_y, 0)
+        self.setup2d()
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
+        glTranslatef(-self.camera_x, -self.camera_y - self.player.height, 0)
+        #draw all the things 
         if self.game.victory:
             self.clear()
             self.victory_msg.draw()
-            self.label.draw()
+            
         else:
             
             self.clear()
@@ -162,10 +180,27 @@ class Window(pyglet.window.Window):
                 # block.draw()
             self.batch.draw()
             self.player.draw()
-            self.label.draw()
-            
+        self.setup2d()  
+        
+        self.label.draw()  
+        
+        self.label2.draw()
         self.fps_display.draw()
-
+        
+    
+    def Invuln(self):
+        if self.time > 60:
+            self.player.invuln = False
+            self.time = 0
+            self.player.color = rgb_to_pyglet(playerColor)
+        else:
+            self.time += 1
+            if self.time % 5 == 0:
+                self.player.color = [1, 0, 0]
+            else:
+                self.player.color = rgb_to_pyglet(playerColor)
+        
+    
     def update(self, dt):
         # self.label.text = 'up: ' + str(round(self.player.up_vel)) + \
                           # ' down: ' + str(round(self.player.down_vel)) + \
@@ -176,6 +211,12 @@ class Window(pyglet.window.Window):
         
         self.label.text = str(self.game.player_hp)
         
+        if self.player.invuln:
+            self.Invuln()
+            self.label2.text = 'inv'
+        else:
+            self.label2.text = ''
+            #print('yay')
         #update position of player 
         
         self.player.move_down(dt)
@@ -210,8 +251,8 @@ class Window(pyglet.window.Window):
             for block in self.physics.collide_d:
                 if block.enemy:
                     #self.game.player_live = False
-                    if self.game.DeathBlockCollision():
-                        self.player.up_vel += DEATH_BOUNCE
+                    self.game.DeathBlockCollision()
+                    
         else:
             friction = FLYING_MOVESPEED
             if self.player.down_vel < GRAVITY:
@@ -223,22 +264,22 @@ class Window(pyglet.window.Window):
             for block in self.physics.collide_r:
                 if block.enemy:
                     #self.game.player_live = False
-                    if self.game.DeathBlockCollision():
-                        self.player.left_vel += DEATH_BOUNCE
+                    self.game.DeathBlockCollision()
+                    
         
         if len(self.physics.collide_u) > 0:
             for block in self.physics.collide_u:
                 if block.enemy:
                     #self.game.player_live = False
-                    if self.game.DeathBlockCollision():
-                        self.player.down_vel += DEATH_BOUNCE
+                    self.game.DeathBlockCollision()
+                    
         
         if len(self.physics.collide_l) > 0:
             for block in self.physics.collide_l:
                 if block.enemy:
                     #self.game.player_live = False
-                    if self.game.DeathBlockCollision():
-                        self.player.right_vel += DEATH_BOUNCE
+                    self.game.DeathBlockCollision()
+                    
         
         
           #game events check
@@ -294,7 +335,8 @@ class Window(pyglet.window.Window):
         #and draw everything
         self.draw_all()
         
-        
+    
+    
     def Restart(self):
         #reset all player vars
         self.player.x = self.map.x
@@ -305,6 +347,8 @@ class Window(pyglet.window.Window):
         self.player.right_vel = 0
         self.game.player_live = True
         self.game.player_hp = 3
+        self.player.invuln = False
+        self.time = 0
         self.game.victory = False
 
        

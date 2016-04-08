@@ -13,6 +13,7 @@ class Actor(object):
         self.height = height
         self.enemy = enemy
         self.warp = warp
+        self.alpha = 100
         
 
     def _verts(self):
@@ -24,6 +25,7 @@ class Actor(object):
 
     def draw(self):
 #         r, g, b = self.rgb_to_pyglet(self.color)
+        
         pyglet.gl.glColor3f(*self.color)
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, \
                         ('v2f', self._verts()))
@@ -47,7 +49,7 @@ class Player(Actor):
         self.right_vel = 0
         self.jumping = False
         self.inc = 0
-
+        self.invuln = False
             
     def move_up(self, dt):
  
@@ -92,6 +94,19 @@ class Player(Actor):
             self.x = block.x + block.width
         else:
             self.x -= self.left_vel
+    
+    def DeathBounce(self):
+        if self.up_vel > self.down_vel:
+            self.up_vel += 6
+        else:
+            self.down_vel +=6
+        if self.right_vel >= self.left_vel:
+            self.left_vel += 7
+        else:
+            self.right_vel += 7
+    
+    
+        
 
 
     
