@@ -38,6 +38,28 @@ class Actor(object):
                         ('v2f', self._verts()), ('c3B', color))
         
 
+        
+        
+class MovingPlatform(Actor):
+
+    def __init__(self, color, start_x, start_y, width, height, enemy=False, warp = False):
+        super().__init__(color, start_x, start_y, width, height)
+        self.moving = False
+        self.time = 0
+        self.range = 100
+        self.dx = 1
+        
+    def Move(self):
+        if self.time >= self.range:
+            self.dx = self.dx * (-1)
+            self.time = 0
+            
+        self.x += self.dx
+        self.time += 1
+        
+        
+        
+        
 class Player(Actor):
     def __init__(self, world, color, start_x, start_y, width, height):
         super().__init__(color, start_x, start_y, width, height)

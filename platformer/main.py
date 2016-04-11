@@ -79,8 +79,7 @@ class Map(object):
                     elif col == 4:
                         self.x, self.y = j*32, i*32
                     block.AddToBatch(batch)
-                    
-  
+        
        
        
 class Window(pyglet.window.Window):
@@ -127,7 +126,13 @@ class Window(pyglet.window.Window):
         
         #self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
 #         self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
-       
+        
+        self.platform = MovingPlatform(rgb_to_pyglet(blockColor), 100, 100, 64, 32)
+        #self.blocks.append(platform)
+        self.physics.AddObject(self.platform)
+        #self.platform.AddToBatch(self.batch)
+                    
+  
         
         #object for all game events, vars etc
         # self.game = Game(self.player)
@@ -191,6 +196,7 @@ class Window(pyglet.window.Window):
                 # block.draw()
             self.batch.draw()
             self.player.draw()
+            self.platform.draw()
         self.setup2d()  
         
         self.label.draw()  
@@ -243,6 +249,10 @@ class Window(pyglet.window.Window):
         #stage borders
         self.game.StageBorder(self.player.x, self.player.y)
         
+        self.platform.Move()
+        
+        
+        
                    
         if self.player.jumping == True:
             #self.label.text = 'jump'
@@ -265,6 +275,8 @@ class Window(pyglet.window.Window):
                 if block.enemy:
                     #self.game.player_live = False
                     self.game.DeathBlockCollision()
+                if type(block) == MovingPlatform:
+                    self.player.x += block.dx
                     
         else:
             friction = FLYING_MOVESPEED
