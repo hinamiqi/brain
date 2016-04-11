@@ -10,9 +10,10 @@ import PIL.Image
 def LoadLevel(path="map1.bmp"):
     im = PIL.Image.open(path)
     level = []
-    for i in range(16):
+    width, height = im.size
+    for i in range(height):
         level.append([])
-        for j in range(16):
+        for j in range(width):
             if im.getpixel((j,i)) == (0, 0, 0):
                 level[i].append(1) #static block
             elif im.getpixel((j,i)) == (255, 0, 0):
@@ -23,5 +24,5 @@ def LoadLevel(path="map1.bmp"):
                 level[i].append(4) #start
             else:
                 level[i].append(0)
-    return level
+    return level, width, height
 

@@ -47,14 +47,15 @@ class Map(object):
     '''
     
     def __init__(self, map, physics):
-        self.map = map
+        self.map, self.width, self.height = map
+        #print(self.width, self.height)
         self.physics = physics
         self.blocks = []
         self.x = 100
         self.y = 300
         
     def CreateActors(self, batch):
-        i = 16
+        i = self.height
         j = -1
         for row in self.map:
             i -= 1
@@ -390,7 +391,7 @@ class Window(pyglet.window.Window):
                 self.map = Map(LoadLevel(self.menu.levels[self.menu.selected]), self.physics)
                 self.map.CreateActors(self.batch)
                 self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
-                self.game = Game(self.player)
+                self.game = Game(self.player, self.map.width, self.map.height)
             elif key == pyglet.window.key.ESCAPE:
                 pyglet.app.exit()
             return
