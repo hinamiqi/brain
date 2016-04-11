@@ -63,23 +63,25 @@ class Map(object):
             for col in row:
                 j += 1
                 #blocks
-                if col != 0:
-                    if col == 1:
-                        #print(i, j)
-                        block = Actor(blockColor, j*32, i*32, 32, 32)
-                        self.blocks.append(block)
-                        self.physics.AddObject(block)
-                    elif col == 2:
-                        block = Actor(dblockColor, j*32, i*32, 32, 32, enemy=True)
-                        self.blocks.append(block)
-                        self.physics.AddObject(block)
-                    elif col == 3:
-                        block = Actor(warpColor, j*32+8, i*32+8, 16, 16, warp=True)
-                        self.blocks.append(block)
-                        self.physics.AddObject(block)
-                    elif col == 4:
-                        self.x, self.y = j*32, i*32
-                    block.AddToBatch(batch)
+                #if col != 0:
+                if col == 1:
+                    #print(i, j)
+                    block = Actor(blockColor, j*32, i*32, 32, 32)
+                    self.blocks.append(block)
+                    self.physics.AddObject(block)
+                elif col == 2:
+                    block = Actor(dblockColor, j*32, i*32, 32, 32, enemy=True)
+                    self.blocks.append(block)
+                    self.physics.AddObject(block)
+                elif col == 3:
+                    block = Actor(warpColor, j*32+8, i*32+8, 16, 16, warp=True)
+                    self.blocks.append(block)
+                    self.physics.AddObject(block)
+                elif col == 4:
+                    self.x, self.y = j*32, i*32
+                else:
+                    continue
+                block.AddToBatch(batch)
         
        
        
@@ -169,6 +171,7 @@ class Window(pyglet.window.Window):
         glColor3ub(255,255,255)
         glDisable(GL_DEPTH_TEST)
         glViewport(0, 0, self._width, self._height) 
+        #glViewport(0, 0, 300, 300) 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         glOrtho(0, self.width, 0, self.height, -1, 1)
