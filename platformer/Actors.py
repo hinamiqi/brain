@@ -37,7 +37,10 @@ class Actor(object):
         self._vertex_list = batch.add(4, pyglet.gl.GL_QUADS, None, \
                         ('v2f', self._verts()), ('c3B', color))
         
-
+        
+        
+    def remove_from_batch(self, batch):
+        self._vertex_list.delete()
         
         
 class MovingPlatform(Actor):

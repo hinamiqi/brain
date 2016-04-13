@@ -130,9 +130,9 @@ class Window(pyglet.window.Window):
         #self.player = Player(self.physics, rgb_to_pyglet(playerColor), 100, 300, 16, 32)
 #         self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
         
-        self.platform = MovingPlatform(rgb_to_pyglet(blockColor), 100, 100, 64, 32)
+        #self.platform = MovingPlatform(rgb_to_pyglet(blockColor), 100, 100, 64, 32)
         #self.blocks.append(platform)
-        self.physics.AddObject(self.platform)
+        #self.physics.AddObject(self.platform)
         #self.platform.AddToBatch(self.batch)
                     
   
@@ -200,7 +200,7 @@ class Window(pyglet.window.Window):
                 # block.draw()
             self.batch.draw()
             self.player.draw()
-            self.platform.draw()
+            #self.platform.draw()
         self.setup2d()  
         
         self.label.draw()  
@@ -253,7 +253,7 @@ class Window(pyglet.window.Window):
         #stage borders
         self.game.StageBorder(self.player.x, self.player.y)
         
-        self.platform.Move()
+        #self.platform.Move()
         
         
         
@@ -391,7 +391,8 @@ class Window(pyglet.window.Window):
             elif key == pyglet.window.key.UP:
                 self.menu.select_previous()
             elif key == pyglet.window.key.RETURN:
-                self.map = Map(LoadLevel(self.menu.levels[self.menu.selected]), self.physics)
+                #self.map = Map(LoadLevel(self.menu.levels[self.menu.selected]), self.physics)
+                self.map = Map(LoadLevel2(), self.physics)
                 self.map.CreateActors(self.batch)
                 self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
                 self.game = Game(self.player, self.map.width, self.map.height)
