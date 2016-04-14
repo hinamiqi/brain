@@ -105,7 +105,7 @@ class Window(pyglet.window.Window):
         '''
 #         self.map = Map(level, self.physics)
         self.map = None
-       
+        
     
         '''
         Menu object
@@ -140,7 +140,7 @@ class Window(pyglet.window.Window):
         #object for all game events, vars etc
         # self.game = Game(self.player)
         self.game = None
-        
+        self.victory = False
         #label for some info
         self.label = pyglet.text.Label("", font_name='Arial', font_size=20, 
                                            x=10, y=460,
@@ -183,30 +183,32 @@ class Window(pyglet.window.Window):
         self.setup2d()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
+        
         if self.map:
             self.draw_game()
         else:
             self.menu.draw()
     
     def draw_game(self):
-        glTranslatef(-self.camera_x, -self.camera_y - self.player.height, 0)
-        #draw all the things 
         if self.game.victory:
-            self.clear()
             self.victory_msg.draw()
+            self.victory = True
         else:
+            glTranslatef(-self.camera_x, -self.camera_y - self.player.height, 0)
+            #draw all the things 
+        
             self.clear()
             # for block in self.map.blocks:
                 # block.draw()
             self.batch.draw()
             self.player.draw()
             #self.platform.draw()
-        self.setup2d()  
-        
-        self.label.draw()  
-        
-        self.label2.draw()
-        self.fps_display.draw()
+            self.setup2d()  
+            
+            self.label.draw()  
+            
+            self.label2.draw()
+            self.fps_display.draw()
     
     def Invuln(self):
         if self.time > 60:
@@ -385,14 +387,20 @@ class Window(pyglet.window.Window):
         
 
     def on_key_press(self, key, modifiers):
+        if self.victory:
+            self.victory = False
+            self.game.victory = False
+            self.map = None
+            self.game = None
+            self.menu.draw()
         if not self.map:
             if key == pyglet.window.key.DOWN:
                 self.menu.select_next()
             elif key == pyglet.window.key.UP:
                 self.menu.select_previous()
             elif key == pyglet.window.key.RETURN:
-                #self.map = Map(LoadLevel(self.menu.levels[self.menu.selected]), self.physics)
-                self.map = Map(LoadLevel2(), self.physics)
+                self.map = Map(LoadLevel(self.menu.levels[self.menu.selected]), self.physics)
+                #self.map = Map(LoadLevel2(), self.physics)
                 self.map.CreateActors(self.batch)
                 self.player = Player(self.physics, rgb_to_pyglet(playerColor), self.map.x, self.map.y, 16, 25)
                 self.game = Game(self.player, self.map.width, self.map.height)

@@ -29,8 +29,10 @@ class Game(object):
         
         
     def StageBorder(self, x, y):
-        if (x < self.x_border[0] or x > self.x_border[1]) or \
-           (y < self.y_border[0] or y > self.y_border[1]):
+        # if (x < self.x_border[0] or x > self.x_border[1]) or \
+           # (y < self.y_border[0] or y > self.y_border[1]):
             
+            # self.player_live = False
+        if y < self.y_border[0]:
             self.player_live = False
 
