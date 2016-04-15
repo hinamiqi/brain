@@ -24,7 +24,6 @@ class Rules(object):
             
             if self.player_hp <= 0:
                 self.player_live = False
-                
             self.player.invuln = True
         
         

@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import pyglet
+import numpy as np
 
 class Actor(object):
 
@@ -76,6 +77,21 @@ class Player(Actor):
         self.inc = 0
         self.invuln = False
             
+    def update(self, dt):
+        self.move_down(dt)
+        self.move_right(dt)
+        self.move_left(dt)
+        self.move_up(dt)
+        if self.jumping == True:
+            height = self.y - self.jumppoint
+            sp = height/JUMP_HEIGHT
+            sp = np.cos(sp*np.pi/2)
+            if sp > 0.25:
+                self.up_vel += sp * 10
+            else:
+                self.jumppoint = self.y
+                self.jumping = False
+    
     def move_up(self, dt):
  
         new_y = self.y + self.up_vel 

@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+#max. down_vel
+GRAVITY = 10
+#0-1
+FLYING_MOVESPEED = 0.2
+#up_vel max
+JUMP_HEIGHT = 14
+DEATH_BOUNCE = 10
+#0-1
+FRICTION = 0.5
+INERTION = 1.3
 
 class World(object):
     def __init__(self):
@@ -24,23 +34,13 @@ class World(object):
                 if block2.warp == True:
                     self.warp_collide = True
                     return False
-                #block2.color = [1, 0, 0]
+
                 return block2
-            #else:
-                #block2.color = [0.61, 0.53, 0.05]
-            
+
         return False
+ 
         
-    # def TouchCheck(self, block1):
-        # for block2 in self.objects:
-            # if block1.y == (block2.y + block2.height) and \
-                # (block1.x + block1.width) >= block2.x and \
-                # block1.x <= (block2.x + block2.width):
-                    # print(block2.x)
-                    
-                    # return True
-        
-    def TouchCheck(self, block1):
+    def touch_check(self, block1):
         for block2 in self.objects:
             #down collide
             if block1.y == (block2.y + block2.height) and \
@@ -78,15 +78,8 @@ class World(object):
             else:
                 if block2 in self.collide_l:
                     self.collide_l.remove(block2)
-                 
+            
+
+
     def AddObject(self, block):
         self.objects.append(block)
-        #print(self.objects)
-
-    def Gravitation(self, vel):
-        if vel < self.grav_const:
-            vel += 1
-        else:
-            vel = self.grav_const
-        return vel
-        # player.move_down(dt)
