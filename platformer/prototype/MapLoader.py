@@ -15,8 +15,12 @@ def load_data(filename):
     name = data['name']
     width = data['width']
     height = data['height']
+    if 'start_pos' in data:
+        start_pos = data['start_pos']
+    else:
+        start_pos = (100, 100)
 
-    return objects, name, width, height
+    return objects, name, width, height, start_pos
 
 class Map(object):
     '''
@@ -28,16 +32,16 @@ class Map(object):
     '''
     
     def __init__(self, path, physics):
-        self.objects, self.name, self.width, self.height = load_data(path)
+        self.objects, self.name, self.width, self.height, self.start_pos = load_data(path)
         self.physics = physics
  
     def create_actors(self, batch):
         for key in self.objects:
             obj = self.objects[key]
-            #print(obj)
-            if obj['type'] == 'block':
-                x, y = obj['cord']
+            x, y = obj['cord']
+            if obj['type'] == 'warp':
+                block = Actor(obj['color'], x*32+8, y*32+8, 16, 16)
+            else:
                 block = Actor(obj['color'], x*32, y*32, 32, 32)
-                self.physics.AddObject(block)
-                block.AddToBatch(batch)
-   
+            self.physics.AddObject(block)
+            block.AddToBatch(batch)

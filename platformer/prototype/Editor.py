@@ -6,6 +6,8 @@ import json
 
 from pyglet_gui.manager import Manager
 from pyglet_gui.buttons import Button, OneTimeButton, Checkbox, GroupButton
+from pyglet_gui.gui import PopupMessage
+from pyglet_gui.text_input import TextInput
 from pyglet_gui.containers import HorizontalContainer
 from pyglet_gui.theme import Theme
 from pyglet_gui.constants import *
@@ -26,6 +28,7 @@ theme = Theme({"font": "Lucida Grande",
                "font_size": 12,
                "text_color": [255, 255, 255, 255],
                "gui_color": [255, 0, 0, 255],
+               "focus_color": [255, 255, 255, 64],
                "button": {
                    "down": {
                        "image": {
@@ -40,6 +43,14 @@ theme = Theme({"font": "Lucida Grande",
                            "source": "button.png",
                            "frame": [6, 6, 3, 3],
                            "padding": [12, 12, 4, 2]
+                       },
+                       "focus": {
+                            "image":{
+                                "source":"button-highlight.png",
+                                "frame":[8, 6, 2, 2],
+                                "padding":[18, 18, 8, 6]
+                            }
+                       
                        }
                    }
                },
@@ -52,6 +63,27 @@ theme = Theme({"font": "Lucida Grande",
                    "unchecked": {
                        "image": {
                            "source": "checkbox.png"
+                       }
+                   }
+               },
+               "frame": {
+                    "image": {
+                        "source": "panel.png",
+                        "frame": [8, 8, 16, 16],
+                        "padding": [16, 16, 8, 8]
+                        }
+                    },
+                "input": {
+                   "image": {
+                       "source": "input.png",
+                       "frame": [3, 3, 2, 2],
+                       "padding": [3, 3, 2, 3]
+                   },
+                   # need a focus color
+                   "focus_color": [255, 255, 255, 64],
+                   "focus": {
+                       "image": {
+                           "source": "input-highlight.png"
                        }
                    }
                }
@@ -120,11 +152,11 @@ class Map(object):
         
                 }
         print('Saved as ', filename)
-        with open(filename, 'w', encoding='utf-8') as data_file:
+        with open(PATH+filename, 'w', encoding='utf-8') as data_file:
             json.dump(data, data_file)
     
 def load_map(filename):
-    with open(filename, encoding='utf-8') as data_file:
+    with open(PATH+filename, encoding='utf-8') as data_file:
         data = json.loads(data_file.read())
     objects = {}
     for obj in data['objects']:
@@ -170,6 +202,7 @@ class Window(pyglet.window.Window):
         
     def _init_gui(self):
         self.gui_batch = pyglet.graphics.Batch()
+        self.popup_batch = pyglet.graphics.Batch()
         self.button1 = GroupButton(group_id='1', label="Block")
         self.button2 = GroupButton(group_id='1', label="Death block")
         self.button3 = GroupButton(group_id='1', label="Start")
@@ -178,6 +211,8 @@ class Window(pyglet.window.Window):
         self.button6 = OneTimeButton(label="Save")
         self.button7 = OneTimeButton(label="Open")
         self.button8 = OneTimeButton(label="Exit")
+        self.text_field = TextInput(text="Untitled1.txt")
+        
         Manager(HorizontalContainer([
                                self.button1,
                                self.button2,
@@ -194,23 +229,48 @@ class Window(pyglet.window.Window):
         Manager(HorizontalContainer([
                                self.button6,
                                self.button7,
-                               self.button8
+                               self.button8,
+                               self.text_field
                                ]),
             window=self,
             is_movable=False,
             anchor=ANCHOR_TOP_LEFT,
             batch=self.gui_batch,
             theme=theme)
-            
+        
+        
+        
+         
     def on_draw(self):
         self.clear()
         self.map.batch.draw()
         if self.map.start_pos:
-            #print(self.map.start_pos)
             self.draw_start()
         grid.draw()
         self.gui_batch.draw()
+        if self.button8.is_pressed:
+            pyglet.app.exit()
+        if self.button6.is_pressed:
+            self._save()
+        if self.button7.is_pressed:
+            self._load()
         
+    def _save(self):
+        filename = self.text_field.get_text()
+        self.map.save_map(filename)
+        PopupMessage(text="Saved as " + filename,
+             window=self,
+             batch=self.gui_batch,
+             theme=theme)
+        
+    def _load(self):
+        filename = self.text_field.get_text()
+        self.map = Map(*load_map(filename))
+        PopupMessage(text=filename+" loaded",
+             window=self,
+             batch=self.gui_batch,
+             theme=theme)
+    
     def draw_start(self):
         x, y = self.map.start_pos
         pyglet.gl.glColor3f(*rgb_to_pyglet(startColor))
@@ -228,18 +288,21 @@ class Window(pyglet.window.Window):
             if button == pyglet.window.mouse.LEFT:
                     print( grid_snap(STEP, x, y))
                     position = grid_snap(STEP, x, y)
+
                     if self.button1.is_pressed:
                         type = 'block'
                         color = blockColor
+                        
                     elif self.button2.is_pressed:
                         type = 'dblock'
                         color = dblockColor
                     elif self.button3.is_pressed:
                         self.map.start_pos = position
-                        
+                    
                     elif self.button4.is_pressed:
                         type = 'warp'
                         color = warpColor
+
                     elif self.button5.is_pressed:
                         type = 'point'
                         color = pointColor
@@ -263,15 +326,15 @@ class Window(pyglet.window.Window):
 
             
     def on_key_press(self, key, modifiers):
-        if key == pyglet.window.key.S:
-            filename = PATH + input('Save as.. ')
-            self.map.save_map(filename)
+        # if key == pyglet.window.key.S:
+            # filename = PATH + input('Save as.. ')
+            # self.map.save_map(filename)
             
-        elif key == pyglet.window.key.O:
-            filename = PATH + input('Open.. ')
-            self.map = Map(*load_map(filename))
+        # elif key == pyglet.window.key.O:
+            # filename = PATH + input('Open.. ')
+            # self.map = Map(*load_map(filename))
             
-        elif key == pyglet.window.key.I:
+        if key == pyglet.window.key.I:
             print(self.map.objects)
         
         elif key == pyglet.window.key.ESCAPE:

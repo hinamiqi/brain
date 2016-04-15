@@ -137,7 +137,7 @@ class Game(object):
         self._init()
     
     def _init(self):
-        self.map = Map('resources/maps/lvl1.txt', self.physics)
+        self.map = Map('resources/maps/lvl2.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
         self.game = Rules(self.player, self.map.width, self.map.height)
