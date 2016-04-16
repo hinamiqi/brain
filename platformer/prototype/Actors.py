@@ -14,6 +14,7 @@ DEATH_BOUNCE = 10
 #0-1
 FRICTION = 0.5
 
+ROLL_ANIMATION = 0.4
 
 class Actor(object):
 
@@ -113,10 +114,10 @@ class Player(Actor):
             self.roll_time += dt
             self.height = 16 
             if self.direction == 'left':
-                self.left_vel += 1
+                self.left_vel = self.max_speed
             else:
-                self.right_vel += 1
-            if self.roll_time >= 0.2:
+                self.right_vel = self.max_speed
+            if self.roll_time >= ROLL_ANIMATION:
                 self.rolling = False
                 self.roll_time = 0
                 self.height = 25
@@ -128,7 +129,7 @@ class Player(Actor):
             self.friction = FRICTION
             for block in self.world.collide_d:
                 if block.enemy:
-                    self.game.DeathBlockCollision()
+                    self.death_bounce()
                 if type(block) == MovingPlatform:
                     self.x += block.dx
         else:
@@ -226,16 +227,13 @@ class Player(Actor):
         self.rolling = True
         
     
-    def DeathBounce(self):
-        if self.up_vel > self.down_vel:
-            self.up_vel += 6
-        else:
-            self.down_vel +=6
-        if self.right_vel >= self.left_vel:
-            self.left_vel += 7
-        else:
-            self.right_vel += 7
-    
+    def death_bounce(self):
+        if not self.rolling:
+            if self.direction == 'left':
+                self.right_vel += 2
+            else:
+                self.left_vel += 2
+
     
         
 

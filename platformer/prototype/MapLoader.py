@@ -41,7 +41,11 @@ class Map(object):
             x, y = obj['cord']
             if obj['type'] == 'warp':
                 block = Actor(obj['color'], x*32+8, y*32+8, 16, 16)
-            else:
+            elif obj['type'] == 'block':
                 block = Actor(obj['color'], x*32, y*32, 32, 32)
+            elif obj['type'] == 'dblock':
+                block = Actor(obj['color'], x * 32, y * 32, 32, 32, enemy=True)
+            else:
+                continue
             self.physics.AddObject(block)
             block.AddToBatch(batch)

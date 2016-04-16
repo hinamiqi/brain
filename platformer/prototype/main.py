@@ -8,7 +8,7 @@ from pyglet.window import key
 
 from Scenes import *
 
-backgroundColor = [176, 224, 230, 255]
+
 
 class Window(pyglet.window.Window):
 
@@ -27,14 +27,7 @@ class Window(pyglet.window.Window):
         self.scene = self.state.scene
         self.scene.update(dt)
         self.label.text = self.state.msg
-        # if keys[key.ENTER]:
-            # self.state.scene = LevelInit(self.state, 512, 512, 'SCARY CEMETERY')
-        # if keys[key.RIGHT]:
-            # self.scene.right_move = True
-        # elif keys[key.LEFT]:
-            # self.scene.left_move = True
-        # if keys[key.SPACE]:
-            # self.scene.jump_move()
+
         if keys[key.ESCAPE]:
             pyglet.app.exit()
             

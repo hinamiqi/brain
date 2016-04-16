@@ -137,10 +137,11 @@ class Game(object):
         self._init()
     
     def _init(self):
-        self.map = Map('resources/maps/lvl2.txt', self.physics)
+        self.map = Map('resources/maps/lvl3.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
-        self.game = Rules(self.player, self.map.width, self.map.height)
+        #self.game = Rules(self.player, self.map.width, self.map.height)
+
         
     def setup2d(self):
         glColor3ub(255,255,255)
@@ -165,7 +166,7 @@ class Game(object):
         else:
             self.player.moving = None
 
-        self.state.msg = str(self.player.direction)
+        self.state.msg = str(self.player.rolling)
         if self.count:
             self.key_time += dt
             if self.key_time > 0.5:
@@ -183,7 +184,6 @@ class Game(object):
                 self.count = True
             else:
                 self.player.move_jump()
-            
            
     def draw_all(self):
         glTranslatef(-self.camera_x, -self.camera_y-150, 0)

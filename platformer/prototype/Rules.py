@@ -18,13 +18,11 @@ class Rules(object):
 
     def DeathBlockCollision(self):
         #self.player_live = False
-        if self.player.invuln == False:
-            self.player_hp -= 1
+        if self.player.rolling == False:
+
             self.player.DeathBounce()
             
-            if self.player_hp <= 0:
-                self.player_live = False
-            self.player.invuln = True
+
         
         
     def StageBorder(self, x, y):
