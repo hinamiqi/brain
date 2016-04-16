@@ -87,12 +87,11 @@ class Player(Actor):
         self.left_vel = 0
         self.right_vel = 0
         self.jumping = False
-        self.inc = 0
         self.roll_time = 0
         self.direction = 'right'
         self.moving = None
         self.rolling = False
-        
+        self.status = 'live'
     
     def update(self, dt):
         self.velocities()
@@ -229,10 +228,12 @@ class Player(Actor):
     
     def death_bounce(self):
         if not self.rolling:
-            if self.direction == 'left':
-                self.right_vel += 2
-            else:
-                self.left_vel += 2
+            # if self.direction == 'left':
+                # self.right_vel += 2
+            # else:
+                # self.left_vel += 2
+            self.status = 'dead'
+            
 
     
         

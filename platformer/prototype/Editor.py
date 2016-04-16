@@ -193,7 +193,7 @@ class Grid(object):
 class Window(pyglet.window.Window):
 
     def __init__(self, map):
-        super().__init__(576, 576)
+        super().__init__(map.width*STEP+2*STEP, map.height*STEP+2*STEP)
         self.map = map
         #background color
         pyglet.gl.glClearColor(*rgb_to_pyglet(backgroundColor))
@@ -264,12 +264,18 @@ class Window(pyglet.window.Window):
              theme=theme)
         
     def _load(self):
-        filename = self.text_field.get_text()
-        self.map = Map(*load_map(filename))
-        PopupMessage(text=filename+" loaded",
-             window=self,
-             batch=self.gui_batch,
-             theme=theme)
+        try:
+            filename = self.text_field.get_text()
+            self.map = Map(*load_map(filename))
+            PopupMessage(text=filename+" loaded",
+                 window=self,
+                 batch=self.gui_batch,
+                 theme=theme)
+        except:
+            PopupMessage(text=filename+" does not exist!",
+                 window=self,
+                 batch=self.gui_batch,
+                 theme=theme)
     
     def draw_start(self):
         x, y = self.map.start_pos
@@ -366,7 +372,7 @@ def rgb_to_pyglet(list):
 
         
 if __name__ == '__main__':
-    map = Map(objects = {}, name = 'Untitled1', width = 16, height = 16)
+    map = Map(objects = {}, name = 'Untitled1', width = 32, height = 16)
     window = Window(map)
     grid = Grid(STEP, window)
     

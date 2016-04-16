@@ -30,6 +30,7 @@ GRAVITY = 10
 FLYING_MOVESPEED = 0.2
 #up_vel max
 JUMP_HEIGHT = 14
+ANIMATION_DELAY = 0.2
 DEATH_BOUNCE = 10
 #0-1
 FRICTION = 0.5
@@ -120,6 +121,7 @@ class LevelInit(object):
         self.batch.draw()
         
 class Game(object):
+
     def __init__(self, state, width, height, name):
         self.win_w = width
         self.win_h = height
@@ -137,7 +139,7 @@ class Game(object):
         self._init()
     
     def _init(self):
-        self.map = Map('resources/maps/lvl3.txt', self.physics)
+        self.map = Map('resources/maps/lvl4.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
         #self.game = Rules(self.player, self.map.width, self.map.height)
@@ -169,9 +171,14 @@ class Game(object):
         self.state.msg = str(self.player.rolling)
         if self.count:
             self.key_time += dt
-            if self.key_time > 0.5:
+            if self.key_time > ANIMATION_DELAY:
                 self.count = False
                 self.key_time = 0
+        
+        if self.player.status == 'dead':
+            self.state.scene = GameOver(self.state, 512, 512)
+                
+                
       
     def move_camera(self):
         self.camera_x = self.player.x - (self.win_w / 2)
@@ -180,9 +187,11 @@ class Game(object):
     def key_pressed(self, key):
         if key == pyglet.window.key.SPACE:
             if not self.count:
-                self.player.move_roll()
                 self.count = True
+                self.player.move_jump()
+                #self.player.move_roll()
             else:
+                
                 self.player.move_jump()
            
     def draw_all(self):
@@ -194,5 +203,35 @@ class Game(object):
     def draw(self):
         self.draw_all()
     
+
+class GameOver(object):
+
+    def __init__(self, state, width, height):
+        self.win_w = width
+        self.win_h = height
+        self.state = state
+        self.BCKND_COLOR = [0, 0, 0, 1]
+        self.msg = 'Your friends, family, neighbors and even dog now are dead. And raped.'
+        self.batch = pyglet.graphics.Batch()
+        self._init()  
+            
+    def _init(self):
+        self.big_label = pyglet.text.Label('GAME OVER', anchor_x="center", anchor_y="center", 
+                font_name='Algerian', font_size=52, color=RED, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
+        self.small_label = pyglet.text.Label(self.msg, anchor_x="center", anchor_y="center", 
+                font_name='Algerian', font_size=22, color=WHITE, batch=self.batch, multiline=True, align="center", x=self.win_w//2, y=self.win_h*0.4, width=0.7*self.win_w)
+        self.time = 0
+        self.range = 3
+        
+    def update(self, dt):
+        self.time += dt
+        if self.time >= 8:
+            self.state.scene = TitleScreen(self.state, 512, 512)
+    
+    def key_pressed(self, key):
+        pass
+    
+    def draw(self):
+        self.batch.draw()
         
     
