@@ -142,6 +142,7 @@ class Game(object):
         self.map = Map('resources/maps/lvl4.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
+        self.hud = HUD(self.player, 512, 512)
         #self.game = Rules(self.player, self.map.width, self.map.height)
 
         
@@ -159,6 +160,7 @@ class Game(object):
         
         self.player.update(dt)
         self.move_camera()
+        self.hud.update(dt)
         if self.state.keys[key.RIGHT]:
             self.player.moving = 'right'
             self.player.direction = 'right'
@@ -168,13 +170,16 @@ class Game(object):
         else:
             self.player.moving = None
 
-        self.state.msg = str(self.player.rolling)
+        self.state.msg = str(self.player.direction)
         if self.count:
             self.key_time += dt
             if self.key_time > ANIMATION_DELAY:
                 self.count = False
                 self.key_time = 0
-        
+
+        if self.player.y < self.map.y_border[0]:
+            self.player.status = 'dead'
+
         if self.player.status == 'dead':
             self.state.scene = GameOver(self.state, 512, 512)
                 
@@ -186,23 +191,70 @@ class Game(object):
     
     def key_pressed(self, key):
         if key == pyglet.window.key.SPACE:
-            if not self.count:
-                self.count = True
-                self.player.move_jump()
-                #self.player.move_roll()
-            else:
-                
-                self.player.move_jump()
+            # if not self.count:
+            #     self.count = True
+            #     #self.player.move_jump()
+            #     self.player.move_roll()
+            # else:
+            #
+            #     self.player.move_jump()
+            self.player.move_roll()
+        elif key == pyglet.window.key.UP:
+            self.player.move_jump()
            
     def draw_all(self):
         glTranslatef(-self.camera_x, -self.camera_y-150, 0)
         self.batch.draw()
         self.player.draw()
-        self.setup2d()  
+        self.setup2d()
+        self.hud.draw()
     
     def draw(self):
         self.draw_all()
-    
+
+class HUD(object):
+
+    def __init__(self, player, width, height):
+        self.win_w = width
+        self.win_h = height
+        self.player = player
+        self.hud_batch = pyglet.graphics.Batch()
+        self._init()
+
+    def _init(self):
+        self.status_label = pyglet.text.Label('', anchor_x="right", anchor_y="top",
+                                              font_name='Algerian', font_size=12, color=WHITE, batch=self.hud_batch,
+                                              x=self.win_w, y=self.win_h)
+
+        self.msg_label = pyglet.text.Label('', anchor_x="center", anchor_y="bottom",
+                                           font_name='Algerian', font_size=12, color=WHITE, batch=self.hud_batch,
+                                           x=self.win_w//2, y=10)
+
+        color = []
+        for i in range(3):
+            color.extend(PLAYER)
+        self.hp_bar = self.hud_batch.add(4, pyglet.gl.GL_QUADS, None, \
+                                         ('v2f', self._hp_verts()))
+
+    def _hp_verts(self):
+        verts = [
+                    10,                10, \
+                    20,                10, \
+                    20,                30*self.player.hp, \
+                    10,                30*self.player.hp
+        ]
+
+        return verts
+
+    def update(self, dt):
+        self.status_label.text = str(self.player.hp)
+        self.hp_bar.delete()
+        self.hp_bar = self.hud_batch.add(4, pyglet.gl.GL_QUADS, None, \
+                                         ('v2f', self._hp_verts()))
+        #self.msg_label.text = self.
+
+    def draw(self):
+        self.hud_batch.draw()
 
 class GameOver(object):
 

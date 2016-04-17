@@ -34,6 +34,9 @@ class Map(object):
     def __init__(self, path, physics):
         self.objects, self.name, self.width, self.height, self.start_pos = load_data(path)
         self.physics = physics
+        self.x_border = [0, self.width * 32]
+        self.y_border = [0, self.height * 32]
+
  
     def create_actors(self, batch):
         for key in self.objects:
