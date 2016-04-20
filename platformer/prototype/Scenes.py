@@ -139,7 +139,7 @@ class Game(object):
         self._init()
     
     def _init(self):
-        self.map = Map('resources/maps/lvl4.txt', self.physics)
+        self.map = Map('resources/maps/lvl2.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
         self.hud = HUD(self.player, 512, 512)
@@ -240,8 +240,8 @@ class HUD(object):
         verts = [
                     10,                10, \
                     20,                10, \
-                    20,                30*self.player.hp, \
-                    10,                30*self.player.hp
+                    20,                3*self.player.hp, \
+                    10,                3*self.player.hp
         ]
 
         return verts

@@ -20,6 +20,7 @@ class Actor(object):
 
     def __init__(self, color, start_x, start_y, width, height, enemy=False, warp = False):
         self.color = color
+        self.temp_color = self.color
         self.x = start_x
         self.y = start_y
         self.width = width
@@ -39,14 +40,14 @@ class Actor(object):
     def draw(self):
 #         r, g, b = self.rgb_to_pyglet(self.color)
         
-        pyglet.gl.glColor3f(*self.color)
+        pyglet.gl.glColor3f(*self.temp_color)
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, \
                         ('v2f', self._verts()))
     
     def AddToBatch(self, batch):
         color = []
         for i in range(4):
-            color.extend(self.color)
+            color.extend(self.temp_color)
         self._vertex_list = batch.add(4, pyglet.gl.GL_QUADS, None, \
                         ('v2f', self._verts()), ('c3B', color))
         
@@ -91,17 +92,17 @@ class Player(Actor):
         self.direction = 'right'
         self.moving = None
         self.rolling = False
-        self.hp = 10
+        self.hp = 100
         self.status = 'live'
     
     def update(self, dt):
-        self.velocities()
+        self.velocities(dt)
         self.world.touch_check(self)
         self.move_down(dt)
         self.move_right(dt)
         self.move_left(dt)
         self.move_up(dt)
-        if self.jumping == True:
+        if self.jumping:
             height = self.y - self.jumppoint
             sp = height/JUMP_HEIGHT
             sp = np.cos(sp*np.pi/2)
@@ -110,9 +111,10 @@ class Player(Actor):
             else:
                 self.jumppoint = self.y
                 self.jumping = False
-        if self.rolling:
+        elif self.rolling:
             self.roll_time += dt
-            self.height = 16 
+            #self.height = 16 
+            self.temp_color = (0.7, 0.7, 0.7)
             if self.direction == 'left':
                 self.left_vel = self.max_speed
             else:
@@ -120,15 +122,17 @@ class Player(Actor):
             if self.roll_time >= ROLL_ANIMATION:
                 self.rolling = False
                 self.roll_time = 0
-                self.height = 25
+                #self.height = 25
+                self.temp_color = self.color
+                
     
-    def velocities(self):
+    def velocities(self, dt):
     
         if len(self.world.collide_d) > 0:
             self.friction = FRICTION
             for block in self.world.collide_d:
                 if block.enemy:
-                    self.death_bounce()
+                    self.death_bounce(dt)
                 if type(block) == MovingPlatform:
                     self.x += block.dx
         else:
@@ -223,17 +227,18 @@ class Player(Actor):
                 self.jumping = True
     
     def move_roll(self):
-        self.rolling = True
+        if len(self.world.collide_d) > 0:
+            self.rolling = True
         
     
-    def death_bounce(self):
+    def death_bounce(self, dt):
         if not self.rolling:
-            if self.direction == 'left':
-                self.right_vel += 2
-            else:
-                self.left_vel += 2
+            # if self.direction == 'left':
+                # self.right_vel += 2
+            # else:
+                # self.left_vel += 2
 
-            self.hp -= 2
+            self.hp -= 1
             if self.hp <= 0:
                 self.status = 'dead'
             
