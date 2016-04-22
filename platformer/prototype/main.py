@@ -12,23 +12,27 @@ from Scenes import *
 
 class Window(pyglet.window.Window):
 
-    def __init__(self):
+    def __init__(self, myclock):
         super().__init__(512, 512)
         
         
         self.state = StateHandler()
         self.scene = self.state.scene
         pyglet.gl.glClearColor(*self.scene.BCKND_COLOR)
-        self.fps_display = pyglet.clock.ClockDisplay()
+        
         self.label = pyglet.text.Label('', anchor_x="left", anchor_y="top", 
                 font_name='Arial', font_size=12, x=0, y=512)
+        
+        self.fps_display = pyglet.clock.ClockDisplay()
         pyglet.clock.schedule_interval(self.update, 1/60)
+        pyglet.clock.set_fps_limit(60)
     
     def update(self, dt):
+  
         self.state.keys = keys
         self.scene = self.state.scene
         self.scene.update(dt)
-        self.label.text = self.state.msg
+        #self.label.text = str(self.fps_display)
 
         if keys[key.ESCAPE]:
             pyglet.app.exit()
@@ -38,12 +42,13 @@ class Window(pyglet.window.Window):
         self.scene.key_pressed(key)
         
     def on_draw(self):
-    
+        pyglet.clock.tick()
         self.clear()
         pyglet.gl.glClearColor(*self.scene.BCKND_COLOR)
         self.scene.draw()
         self.label.draw()
         self.fps_display.draw()
+        
     
     
 
@@ -55,10 +60,14 @@ def rgb_to_pyglet(list):
     return result
 
 
+
+        
 if __name__ == '__main__':
-    window = Window()
-    window.set_vsync(False)
+    myclock = pyglet.clock.Clock()
+    myclock.set_fps_limit(60)
     
+    window = Window(myclock)
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
     pyglet.app.run()
+   
