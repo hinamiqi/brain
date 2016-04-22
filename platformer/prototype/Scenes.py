@@ -134,12 +134,12 @@ class Game(object):
         self.physics = World()
         self.friction = 1
         self.batch = pyglet.graphics.Batch()
-        self.camera_x = self.win_w / 2
-        self.camera_y = self.win_h / 2
+        self.camera_x = self.win_w // 2
+        self.camera_y = self.win_h // 2
         self._init()
     
     def _init(self):
-        self.map = Map('resources/maps/lvl2.txt', self.physics)
+        self.map = Map('resources/maps/lvl3.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
         self.hud = HUD(self.player, 512, 512)
@@ -147,14 +147,15 @@ class Game(object):
 
         
     def setup2d(self):
-        glColor3ub(255,255,255)
-        glDisable(GL_DEPTH_TEST)
+        # glColor3ub(255,255,255)
+        # glDisable(GL_DEPTH_TEST)
         glViewport(0, 0, self.win_w, self.win_h) 
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(0, self.win_w, 0, self.win_h, -1, 1)
+        # glMatrixMode(GL_PROJECTION)
+        # glLoadIdentity()
+        #glOrtho(0, self.win_w, 0, self.win_h, -1, 1)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
+        
     
     def update(self, dt):
         
@@ -186,8 +187,8 @@ class Game(object):
                 
       
     def move_camera(self):
-        self.camera_x = self.player.x - (self.win_w / 2)
-        self.camera_y = self.player.y - (self.win_h / 2)
+        self.camera_x = ((self.player.x - (self.win_w // 2)))
+        self.camera_y = ((self.player.y - (self.win_h // 2)))
     
     def key_pressed(self, key):
         if key == pyglet.window.key.SPACE:

@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import pyglet
+import Resources as resources
 import numpy as np
 
 #max. down_vel
@@ -18,7 +19,8 @@ ROLL_ANIMATION = 0.4
 
 class Actor(object):
 
-    def __init__(self, color, start_x, start_y, width, height, enemy=False, warp = False):
+    def __init__(self, color, start_x, start_y, width, height, enemy=False, warp = False, type=None):
+        self.type = type
         self.color = color
         self.temp_color = self.color
         self.x = start_x
@@ -28,7 +30,13 @@ class Actor(object):
         self.enemy = enemy
         self.warp = warp
         self.alpha = 100
+        self._init()
         
+    def _init(self):
+        if self.type == 'dblock':
+            self.enemy = True
+        if self.type == 'warp':
+            self.warp = True
 
     def _verts(self):
         verts = [self.x, self.y,
@@ -52,7 +60,9 @@ class Actor(object):
                         ('v2f', self._verts()), ('c3B', color))
         
         
-        
+    def create_sprite(self, batch):
+        self.sprite = pyglet.sprite.Sprite(resources.tiles[self.type], self.x, self.y, batch=batch)
+    
     def remove_from_batch(self, batch):
         self._vertex_list.delete()
         
@@ -180,7 +190,7 @@ class Player(Actor):
     def move_up(self, dt):
  
         new_y = self.y + self.up_vel 
-        block = self.world.CollisionCheck2(self.x, new_y, self.width, self.height)
+        block = self.world.collision_check(self.x, new_y, self.width, self.height)
         if block:
             self.up_vel = 0
             self.jumping = False
@@ -191,7 +201,7 @@ class Player(Actor):
     def move_down(self, dt):
 
         new_y = self.y - self.down_vel
-        block = self.world.CollisionCheck2(self.x, new_y, self.width, self.height)
+        block = self.world.collision_check(self.x, new_y, self.width, self.height)
         if block:
             self.down_vel = 0
             self.up_vel = 0
@@ -204,7 +214,7 @@ class Player(Actor):
     def move_right(self, dt):
 
         new_x = self.x + self.right_vel 
-        block = self.world.CollisionCheck2(new_x, self.y, self.width, self.height)
+        block = self.world.collision_check(new_x, self.y, self.width, self.height)
         if block:
             self.right_vel = 0
             self.x = block.x - self.width 
@@ -214,7 +224,7 @@ class Player(Actor):
     def move_left(self, dt):
 
         new_x = self.x - self.left_vel 
-        block = self.world.CollisionCheck2(new_x, self.y, self.width, self.height)
+        block = self.world.collision_check(new_x, self.y, self.width, self.height)
         if block:
             self.left_vel = 0
             self.x = block.x + block.width

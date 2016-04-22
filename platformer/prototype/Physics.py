@@ -23,7 +23,7 @@ class World(object):
         self.warp_collide = False
 
       
-    def CollisionCheck2(self, x, y, w, h):
+    def collision_check(self, x, y, w, h):
         for block2 in self.objects:
             
             if x < block2.x + block2.width and \
@@ -81,5 +81,5 @@ class World(object):
             
 
 
-    def AddObject(self, block):
+    def add_object(self, block):
         self.objects.append(block)
