@@ -14,6 +14,8 @@ class Window(pyglet.window.Window):
 
     def __init__(self):
         super().__init__(512, 512)
+        
+        
         self.state = StateHandler()
         self.scene = self.state.scene
         pyglet.gl.glClearColor(*self.scene.BCKND_COLOR)
@@ -55,6 +57,8 @@ def rgb_to_pyglet(list):
 
 if __name__ == '__main__':
     window = Window()
+    window.set_vsync(False)
+    
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
     pyglet.app.run()

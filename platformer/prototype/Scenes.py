@@ -139,20 +139,21 @@ class Game(object):
         self._init()
     
     def _init(self):
-        self.map = Map('resources/maps/lvl3.txt', self.physics)
+        self.map = Map('resources/maps/lvl2.txt', self.physics)
         self.map.create_actors(self.batch)
         self.player = Player(self.physics, rgb_to_pyglet(PLAYER), 100, 100, 16, 25)
         self.hud = HUD(self.player, 512, 512)
+        glViewport(0, 0, self.win_w, self.win_h) 
         #self.game = Rules(self.player, self.map.width, self.map.height)
 
         
     def setup2d(self):
         # glColor3ub(255,255,255)
         # glDisable(GL_DEPTH_TEST)
-        glViewport(0, 0, self.win_w, self.win_h) 
-        # glMatrixMode(GL_PROJECTION)
-        # glLoadIdentity()
-        #glOrtho(0, self.win_w, 0, self.win_h, -1, 1)
+        
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0, self.win_w, 0, self.win_h, -1, 1)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
@@ -160,7 +161,8 @@ class Game(object):
     def update(self, dt):
         
         self.player.update(dt)
-        self.move_camera()
+        #self.check_player_pos()
+        #self.move_camera()
         self.hud.update(dt)
         if self.state.keys[key.RIGHT]:
             self.player.moving = 'right'
@@ -184,11 +186,16 @@ class Game(object):
         if self.player.status == 'dead':
             self.state.scene = GameOver(self.state, 512, 512)
                 
-                
+    
+    def check_player_pos(self):
+        if self.player.x <= self.win_w//3:
+            self.move_camera()
       
     def move_camera(self):
         self.camera_x = ((self.player.x - (self.win_w // 2)))
         self.camera_y = ((self.player.y - (self.win_h // 2)))
+        #glLoadIdentity()
+        glTranslatef(-self.camera_x, -self.camera_y-150, 0)
     
     def key_pressed(self, key):
         if key == pyglet.window.key.SPACE:
@@ -202,9 +209,11 @@ class Game(object):
             self.player.move_roll()
         elif key == pyglet.window.key.UP:
             self.player.move_jump()
+        
            
     def draw_all(self):
-        glTranslatef(-self.camera_x, -self.camera_y-150, 0)
+        #glTranslatef(-self.camera_x, -self.camera_y-150, 0)
+        self.move_camera()
         self.batch.draw()
         self.player.draw()
         self.setup2d()
@@ -212,6 +221,7 @@ class Game(object):
     
     def draw(self):
         self.draw_all()
+        
 
 class HUD(object):
 
