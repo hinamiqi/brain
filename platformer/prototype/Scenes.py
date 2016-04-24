@@ -11,6 +11,9 @@ from pyglet.window import key
 from Physics import *
 from MapLoader import *
 from Rules import *
+import Resources
+
+
 
 RED = (250, 0, 0, 255)
 WHITE = (250, 250, 250, 255)
@@ -35,6 +38,12 @@ DEATH_BOUNCE = 10
 #0-1
 FRICTION = 0.5
 INERTION = 1.3
+
+
+
+FONT_NAME = "OptimusPrinceps"
+#font = pyglet.font.load(FONT_NAME)
+
 
 #normalize 0-255 to 0-1
 def rgb_to_pyglet(list):
@@ -64,9 +73,9 @@ class TitleScreen(object):
         
     def _init(self):
         self.title = pyglet.text.Label('PROTOTYPE', anchor_x="center", anchor_y="center", 
-                font_name='Algerian', font_size=62, color=UNSELECTED, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
+                font_name=FONT_NAME, font_size=62, color=WHITE, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
         self.main_label = pyglet.text.Label('press start', anchor_x="center", anchor_y="center", 
-                font_name='Algerian', font_size=22, color=WHITE, batch=self.batch, x=self.win_w//2, y=self.win_h*0.4)
+                font_name=FONT_NAME, font_size=22, color=WHITE, batch=self.batch, x=self.win_w//2, y=self.win_h*0.4)
         self.time = 0
         self.range = 1
         self.dx = 1
@@ -103,9 +112,9 @@ class LevelInit(object):
     
     def _init(self):
         self.label = pyglet.text.Label('WELCOME TO', anchor_x="center", anchor_y="center", 
-                font_name='Algerian', font_size=52, color=RED, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
+                font_name=FONT_NAME, font_size=52, color=RED, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
         self.main_label = pyglet.text.Label(self.name, anchor_x="center", anchor_y="center", 
-                font_name='Algerian', font_size=22, color=WHITE, batch=self.batch, x=self.win_w//2, y=self.win_h*0.4)
+                font_name=FONT_NAME, font_size=22, color=WHITE, batch=self.batch, x=self.win_w//2, y=self.win_h*0.4)
         self.time = 0
         self.range = 3
         
@@ -234,11 +243,11 @@ class HUD(object):
 
     def _init(self):
         self.status_label = pyglet.text.Label('', anchor_x="right", anchor_y="top",
-                                              font_name='Algerian', font_size=12, color=WHITE, batch=self.hud_batch,
+                                              font_name=FONT_NAME, font_size=12, color=WHITE, batch=self.hud_batch,
                                               x=self.win_w, y=self.win_h)
 
         self.msg_label = pyglet.text.Label('', anchor_x="center", anchor_y="bottom",
-                                           font_name='Algerian', font_size=12, color=WHITE, batch=self.hud_batch,
+                                           font_name=FONT_NAME, font_size=12, color=WHITE, batch=self.hud_batch,
                                            x=self.win_w//2, y=10)
 
         color = []
@@ -280,9 +289,9 @@ class GameOver(object):
             
     def _init(self):
         self.big_label = pyglet.text.Label('GAME OVER', anchor_x="center", anchor_y="center", 
-                font_name='Algerian', font_size=52, color=RED, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
+                font_name=FONT_NAME, font_size=52, color=RED, batch=self.batch, x=self.win_w//2, y=self.win_h*0.6)
         self.small_label = pyglet.text.Label(self.msg, anchor_x="center", anchor_y="center", 
-                font_name='Algerian', font_size=22, color=WHITE, batch=self.batch, multiline=True, align="center", x=self.win_w//2, y=self.win_h*0.4, width=0.7*self.win_w)
+                font_name=FONT_NAME, font_size=22, color=WHITE, batch=self.batch, multiline=True, align="center", x=self.win_w//2, y=self.win_h*0.4, width=0.7*self.win_w)
         self.time = 0
         self.range = 3
         
